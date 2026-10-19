@@ -3,6 +3,7 @@ import "../styles.css";
 import { isMuted, setMuted, unlock } from "../audio/engine";
 import { startMusic } from "../audio/music";
 import { playLaugh, startAmbientThunder } from "../audio/sfx";
+import { unlockVoice } from "../audio/voice";
 import { START, TEXT } from "../content";
 import { lightning, runEffect } from "../effects";
 import { isComplete, resolveScan, type Found } from "../hunt";
@@ -49,6 +50,7 @@ function showProgress(found: Found, wasComplete: boolean): void {
 }
 
 async function enter(): Promise<void> {
+  unlockVoice(); // must run synchronously inside the tap for iOS
   await unlock();
   void startMusic();
   startAmbientThunder(lightning);

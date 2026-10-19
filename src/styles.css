@@ -170,6 +170,11 @@ body {
 .fx-laugh { background: radial-gradient(circle, rgba(30, 60, 20, 0.55), rgba(0, 0, 0, 0.85)); color: #b6ff9e; animation: fade 3.5s ease-in-out forwards; }
 .fx-message { background: rgba(0, 0, 0, 0.88); animation: fade 6s ease-in-out forwards; }
 .fx-message .fx-big { font-size: clamp(1.8rem, 9vw, 3.4rem); color: #ffd7d7; text-shadow: 0 0 24px var(--blood); }
+.fx-speak { background: radial-gradient(circle, rgba(40, 0, 0, 0.75), rgba(0, 0, 0, 0.95)); animation: fade-in 1s ease-out; transition: opacity 1.2s; }
+.fx-speak .fx-big { font-size: clamp(1.8rem, 9vw, 3.2rem); color: #ffd7d7; text-shadow: 0 0 24px var(--blood); animation: breathe 2.4s ease-in-out infinite; }
+.fx-speak.fx-out { opacity: 0; }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes breathe { 50% { transform: scale(1.04); text-shadow: 0 0 40px var(--blood); } }
 .fx-whisper { animation: fade 3.5s ease-in-out forwards; }
 .fx-whisper p { font-size: 2.6rem; color: var(--blood); }
 @keyframes fade { 0% { opacity: 0; } 12%, 80% { opacity: 1; } 100% { opacity: 0; } }

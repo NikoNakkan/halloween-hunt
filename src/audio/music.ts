@@ -13,16 +13,33 @@ const PATTERN = [
 const BASS = [50, 50, 49, 48];
 
 let timer: number | undefined;
+let musicBus: GainNode | null = null;
+
+/** All music goes through one gain so it can be turned down under other sounds. */
+function bus(): GainNode {
+  if (!musicBus) {
+    const { ctx, out } = audio();
+    musicBus = ctx.createGain();
+    musicBus.connect(out);
+  }
+  return musicBus;
+}
+
+/** Turn the music down (e.g. while grandma speaks) or back up. */
+export function duckMusic(ducked: boolean): void {
+  const { ctx } = audio();
+  bus().gain.setTargetAtTime(ducked ? 0.15 : 1, ctx.currentTime, 0.3);
+}
 
 const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12);
 
 function pianoNote(midi: number, at: number, volume: number, length = 1.6): void {
-  const { ctx, out } = audio();
+  const { ctx } = audio();
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0.0001, at);
   gain.gain.exponentialRampToValueAtTime(volume, at + 0.01);
   gain.gain.exponentialRampToValueAtTime(0.0001, at + length);
-  gain.connect(out);
+  gain.connect(bus());
   // Fundamental plus a slightly detuned octave: a cold, music-box timbre.
   for (const [mult, type, detune] of [
     [1, "triangle", 0],
@@ -68,13 +85,13 @@ export async function startMusic(): Promise<void> {
 }
 
 function loopFile(buffer: AudioBuffer): void {
-  const { ctx, out } = audio();
+  const { ctx } = audio();
   const src = ctx.createBufferSource();
   const gain = ctx.createGain();
   gain.gain.value = 0.35;
   src.buffer = buffer;
   src.loop = true;
-  src.connect(gain).connect(out);
+  src.connect(gain).connect(bus());
   src.start();
   timer = -1;
 }

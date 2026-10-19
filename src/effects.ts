@@ -1,5 +1,6 @@
 // Full-screen scares triggered by the admin (and ambient lightning).
 import { playLaugh, playScream, playThunder } from "./audio/sfx";
+import { speak } from "./audio/voice";
 import type { HuntEvent } from "./sync";
 
 const FACE_SVG = `
@@ -40,7 +41,7 @@ export function lightning(): void {
   overlay("fx-lightning", "", 1200);
 }
 
-export function runEffect(event: Pick<HuntEvent, "kind" | "name" | "text">): void {
+export function runEffect(event: Pick<HuntEvent, "kind" | "name" | "text" | "audio">): void {
   const name = event.name ? escapeHtml(greekCaps(event.name)) : "";
   switch (event.kind) {
     case "scream":
@@ -72,5 +73,21 @@ export function runEffect(event: Pick<HuntEvent, "kind" | "name" | "text">): voi
         6000,
       );
       break;
+    case "speak": {
+      // Words appear while grandma says them; the overlay stays until she's done.
+      const el = document.createElement("div");
+      el.className = "fx fx-speak";
+      el.innerHTML = `<p class="fx-big">«${escapeHtml(event.text ?? "")}»</p>${name ? `<p>${name}…</p>` : ""}`;
+      document.body.append(el);
+      vibrate([60, 120, 60]);
+      // Keep the words up long enough to read, even if the phone can't speak.
+      const readMs = 3000 + (event.text ?? "").length * 80;
+      const minimum = new Promise((r) => window.setTimeout(r, readMs));
+      void Promise.all([speak(event.text ?? "", event.audio), minimum]).then(() => {
+        el.classList.add("fx-out");
+        window.setTimeout(() => el.remove(), 1200);
+      });
+      break;
+    }
   }
 }

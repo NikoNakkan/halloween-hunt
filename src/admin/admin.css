@@ -49,6 +49,12 @@
 .fx-btn.scream { background: linear-gradient(#4d0a0f, #1c0d0e); }
 .fx-btn.laugh { background: linear-gradient(#183312, #1c0d0e); }
 
+.voice-form { display: grid; gap: 8px; margin-top: 10px; }
+.admin select { font: inherit; color: var(--ink); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.4); }
+.admin input#voice-key, .admin input#voice-id { width: 100%; }
+details summary { cursor: pointer; list-style: none; }
+details summary h2 { display: inline; }
+
 .found { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 4px; }
 .found li { color: var(--muted); }
 .found li.yes { color: var(--ink); }

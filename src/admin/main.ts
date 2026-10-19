@@ -8,6 +8,7 @@ import { FIREBASE_CONFIG } from "../config";
 import { createStore, type EffectKind, type HuntStore } from "../sync";
 import { checkPin, isUnlocked } from "./pin";
 import { renderQrSheet } from "./qr";
+import { clipFor, wireVoicePanel } from "./voice-panel";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel) as T;
 
@@ -43,7 +44,8 @@ function renderNames(store: HuntStore): void {
 }
 
 async function fire(store: HuntStore, kind: EffectKind, text?: string): Promise<void> {
-  const event = { kind, name: selected ?? undefined, text };
+  const audio = kind === "speak" && text ? await clipFor(text) : undefined;
+  const event = { kind, name: selected ?? undefined, text, audio };
   if ($<HTMLInputElement>("#preview").checked) {
     await unlock();
     runEffect(event);
@@ -54,6 +56,7 @@ async function fire(store: HuntStore, kind: EffectKind, text?: string): Promise<
 
 function wire(store: HuntStore): void {
   $("#mode").textContent = FIREBASE_CONFIG ? "🟢 Live" : "🟡 Τοπική δοκιμή";
+  wireVoicePanel();
 
   store.onNames((list) => {
     names = list;
@@ -74,7 +77,10 @@ function wire(store: HuntStore): void {
     e.preventDefault();
     const input = $<HTMLInputElement>("#msg-input");
     if (!input.value.trim()) return;
-    void fire(store, "message", input.value.trim());
+    // "Στείλε" shows the text; "Μίλα" also has grandma say it out loud.
+    const button = (e as SubmitEvent).submitter as HTMLButtonElement | null;
+    const kind: EffectKind = button?.value === "speak" ? "speak" : "message";
+    void fire(store, kind, input.value.trim());
     input.value = "";
   });
 
