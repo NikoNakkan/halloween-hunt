@@ -1,0 +1,179 @@
+:root {
+  --bg: #0b0708;
+  --ink: #e8dfd0;
+  --muted: #9c8f80;
+  --blood: #b3121b;
+  --blood-glow: rgba(179, 18, 27, 0.55);
+  --flame: #ffb347;
+  --card: rgba(24, 16, 16, 0.82);
+  --line: rgba(232, 223, 208, 0.14);
+  font-family: "EB Garamond", Georgia, serif;
+  color: var(--ink);
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; min-height: 100%; }
+
+body {
+  background: radial-gradient(ellipse at 50% 20%, #2a1214 0%, var(--bg) 65%);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[hidden] { display: none !important; }
+
+.fog {
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 70%, rgba(200, 190, 180, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(200, 190, 180, 0.06), transparent 45%);
+  animation: drift 24s ease-in-out infinite alternate;
+}
+
+@keyframes drift { to { transform: translate(6%, -4%) scale(1.1); } }
+
+.title {
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #f3e9dc;
+  text-shadow: 0 0 18px var(--blood-glow), 0 2px 0 #000;
+  margin: 0 0 16px;
+}
+
+.mute {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  right: 12px;
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.5);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Gate */
+.gate {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  gap: 24px;
+  padding: 24px 16px;
+  text-align: center;
+}
+.gate .title { font-size: clamp(2.2rem, 10vw, 3.6rem); animation: pulse 3s ease-in-out infinite; }
+@keyframes pulse { 50% { text-shadow: 0 0 34px var(--blood), 0 2px 0 #000; } }
+
+.enter {
+  font: inherit;
+  font-size: 1.25rem;
+  padding: 16px 28px;
+  border-radius: 999px;
+  border: 1px solid var(--blood);
+  background: linear-gradient(#3a0c10, #1a0607);
+  color: var(--ink);
+  box-shadow: 0 0 24px var(--blood-glow);
+  cursor: pointer;
+}
+.hint { color: var(--muted); margin: 0; }
+
+/* Hunt */
+.hunt {
+  position: relative;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 72px 16px 32px;
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(0, 0, 0, 0.5);
+  animation: rise 0.8s ease-out;
+}
+.card .title { font-size: clamp(1.6rem, 7vw, 2.2rem); }
+.card-text { font-size: 1.2rem; line-height: 1.6; white-space: pre-line; margin: 0; min-height: 6em; }
+.tone-locked .title { color: var(--muted); text-shadow: none; }
+
+.badge {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 2px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--blood);
+  color: #ffb3b3;
+  font-size: 0.95rem;
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+
+.done {
+  text-align: center;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--blood);
+  background: rgba(60, 6, 10, 0.6);
+  box-shadow: 0 0 40px var(--blood-glow);
+  animation: rise 1s ease-out;
+}
+.done h2 { margin: 0 0 4px; font-size: 1.9rem; font-style: italic; }
+.done p { margin: 0; font-size: 1.3rem; color: #ffb3b3; }
+
+/* Progress */
+.progress { text-align: center; }
+.progress-label { margin: 0 0 12px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.9rem; }
+.progress-count { margin: 10px 0 0; font-size: 1.4rem; }
+.progress-count strong { color: var(--flame); font-size: 2rem; }
+
+.candles { list-style: none; display: flex; justify-content: center; gap: 18px; margin: 0 0 14px; padding: 0; }
+.candle { display: grid; justify-items: center; gap: 2px; }
+.wax { width: 18px; height: 40px; border-radius: 4px 4px 2px 2px; background: linear-gradient(90deg, #5a5048, #8d8074 50%, #5a5048); }
+.flame { width: 12px; height: 18px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: transparent; }
+.lit .wax { background: linear-gradient(90deg, #cbbfae, #f2e8d8 50%, #cbbfae); }
+.lit .flame {
+  background: radial-gradient(circle at 50% 70%, #fff6d0, var(--flame) 45%, #ff5a1f 80%);
+  box-shadow: 0 0 16px 6px rgba(255, 170, 60, 0.55);
+  animation: flicker 0.18s infinite alternate;
+}
+@keyframes flicker { to { transform: scale(0.92, 1.06) rotate(2deg); opacity: 0.85; } }
+
+.bar { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, #6d0a10, var(--blood), var(--flame)); transition: width 1s ease; }
+
+/* Effects */
+.fx { position: fixed; inset: 0; z-index: 50; display: grid; place-content: center; text-align: center; pointer-events: none; padding: 16px; }
+.fx p { margin: 8px 0; font-size: 1.6rem; font-style: italic; text-shadow: 0 0 20px #000; }
+.fx .fx-big { font-size: clamp(2.4rem, 12vw, 4.5rem); font-weight: 700; }
+
+.fx-lightning { background: #fff; animation: strike 1.2s ease-out forwards; }
+@keyframes strike { 0% { opacity: 0.95; } 8% { opacity: 0; } 14% { opacity: 0.8; } 22%, 100% { opacity: 0; } }
+
+.fx-scream { background: #000; animation: scream-bg 2.6s steps(1) forwards; }
+.fx-scream .face { width: min(90vw, 70vh); animation: lunge 0.35s ease-out, shake 0.08s linear 0.35s 25; }
+.fx-scream .fx-name { color: var(--blood); font-size: 2.4rem; font-weight: 700; }
+@keyframes scream-bg { 0% { background: #000; } 10% { background: #5a0000; } 20% { background: #000; } 30% { background: #300; } }
+@keyframes lunge { from { transform: scale(0.2); } to { transform: scale(1); } }
+@keyframes shake { 50% { transform: translate(6px, -5px) rotate(1.5deg); } }
+
+.fx-laugh { background: radial-gradient(circle, rgba(30, 60, 20, 0.55), rgba(0, 0, 0, 0.85)); color: #b6ff9e; animation: fade 3.5s ease-in-out forwards; }
+.fx-message { background: rgba(0, 0, 0, 0.88); animation: fade 6s ease-in-out forwards; }
+.fx-message .fx-big { font-size: clamp(1.8rem, 9vw, 3.4rem); color: #ffd7d7; text-shadow: 0 0 24px var(--blood); }
+.fx-whisper { animation: fade 3.5s ease-in-out forwards; }
+.fx-whisper p { font-size: 2.6rem; color: var(--blood); }
+@keyframes fade { 0% { opacity: 0; } 12%, 80% { opacity: 1; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fog, .lit .flame, .gate .title { animation: none; }
+}

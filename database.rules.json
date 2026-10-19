@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "found": {
+      ".read": true,
+      ".write": "!newData.exists()",
+      "$clue": {
+        ".write": "$clue.matches(/^(start|steel|blood|bonds|hidden)$/) && (!data.exists() || data.val() === newData.val())",
+        ".validate": "newData.isNumber() && newData.val() <= now"
+      }
+    },
+    "event": {
+      ".read": true,
+      ".write": true,
+      ".validate": "newData.hasChildren(['id', 'kind', 'at']) && newData.child('kind').val().matches(/^(scream|thunder|laugh|message)$/)",
+      "id": { ".validate": "newData.isString() && newData.val().length < 40" },
+      "kind": { ".validate": true },
+      "at": { ".validate": "newData.isNumber() && newData.val() <= now" },
+      "name": { ".validate": "newData.isString() && newData.val().length <= 24" },
+      "text": { ".validate": "newData.isString() && newData.val().length <= 120" },
+      "$other": { ".validate": false }
+    },
+    "names": {
+      ".read": true,
+      ".write": true,
+      ".validate": "newData.hasChildren() || !newData.exists()",
+      "$i": { ".validate": "newData.isString() && newData.val().length <= 24" }
+    }
+  }
+}
