@@ -26,3 +26,14 @@ Set `FIREBASE_CONFIG` to null in `src/config.ts` to sync only between tabs of on
 ```bash
 npm run check
 ```
+
+## Cursed tape video (dev tool, not deployed)
+
+`tape/` renders a 9-second analog-horror clip (VHS effects over public-domain
+*The Skeleton Dance* footage from Wikimedia Commons, ending on grandma's face).
+
+1. Put the 480p 16mm print from Commons in `tape/footage/skeleton-dance-16mm-480p.webm`.
+2. Run `node node_modules/vite/bin/vite.js --config tape/vite.config.ts` and open http://localhost:5198.
+3. In the console, run `await tape.render()`. The result goes to `tape/out/cursed-tape.webm`.
+
+Shots, timings and texts are in `tape/src/timeline.ts`.

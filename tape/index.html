@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cursed tape renderer</title>
+    <style>
+      body { background: #111; color: #ddd; font: 14px system-ui; margin: 16px; }
+      canvas { width: 640px; max-width: 100%; background: #000; display: block; margin: 12px 0; }
+      button { font: inherit; padding: 6px 12px; margin-right: 8px; }
+    </style>
+  </head>
+  <body>
+    <h1>Cursed tape renderer</h1>
+    <p>Dev tool: renders the analog-horror clip to <code>tape/out/</code>.</p>
+    <canvas id="screen" width="960" height="720"></canvas>
+    <p id="status">Ready.</p>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
