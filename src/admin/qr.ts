@@ -15,7 +15,7 @@ export async function renderQrSheet(root: HTMLElement): Promise<void> {
       const url = clueUrl(clue.code);
       const svg = await QRCode.toString(url, { type: "svg", margin: 1, errorCorrectionLevel: "M" });
       const label = i === 0 ? "ΑΡΧΗ (1)" : `${i + 1}. ${clue.title}`;
-      return `<figure class="qr">${svg}<figcaption>${label}<small>${url}</small></figcaption></figure>`;
+      return `<figure class="qr">${svg}<figcaption>${label}</figcaption></figure>`;
     }),
   );
   root.innerHTML = cards.join("");
