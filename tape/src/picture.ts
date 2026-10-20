@@ -3,7 +3,7 @@ import { FACE_SVG } from "../../src/face";
 import { seek } from "./footage";
 import { blackShirt } from "./recolor";
 import { filmTime, shotAt, subliminalAt, type Cut } from "./timeline";
-import { H, W, glitchText, grade, overlay, rng, snow, wobble, type VhsLook } from "./vhs";
+import { H, W, glitchText, grade, overlay, rng, snow, stopSign, wobble, type VhsLook } from "./vhs";
 
 const work = document.createElement("canvas");
 work.width = W;
@@ -125,11 +125,7 @@ export async function drawFrame(
     const chars = Math.ceil(((t - cut.stare.start) / 0.6) * cut.stare.text.length);
     glitchText(screen, cut.stare.text.slice(0, chars), H - 170, 56, rand);
   }
-  if (shot.kind === "outro") {
-    const on = local > 0.15 && rand() > 0.15;
-    if (on) glitchText(screen, "ΟΠΟΙΟΣ ΓΕΛΑΕΙ", H / 2 - 20, 54, rand);
-    if (on && local > 0.4) glitchText(screen, "ΤΕΛΕΥΤΑΙΟΣ…", H / 2 + 50, 54, rand);
-  }
+  if (shot.kind === "outro" && Math.floor(local * 2) % 2 === 0) stopSign(screen);
   if (shot.kind !== "face") overlay(screen, t, shot.kind === "play" || t < 2);
   if (t > cut.duration - 0.25) {
     screen.fillStyle = "#000";

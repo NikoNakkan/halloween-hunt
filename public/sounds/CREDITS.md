@@ -4,7 +4,6 @@ All CC0 (public domain) from OpenGameArt; no credit required, listed for referen
 
 | File | Source |
 |---|---|
-| laugh.ogg | "Witch Cackle" (Stendhal): https://opengameart.org/content/witch-cackle |
 | scream.ogg | "Female Scream 1" (Nocturnal_Vanguard): https://opengameart.org/node/147410 |
 | scream-alt.ogg | "Female high-pitched scream SFX" (WuxiaScrub): https://opengameart.org/node/131040 |
 | thunder.ogg | "Rain + Long Thunder": https://opengameart.org/content/rain-long-thunder |

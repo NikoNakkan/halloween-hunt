@@ -167,7 +167,7 @@ body {
 @keyframes lunge { from { transform: scale(0.2); } to { transform: scale(1); } }
 @keyframes shake { 50% { transform: translate(6px, -5px) rotate(1.5deg); } }
 
-.fx-laugh { background: radial-gradient(circle, rgba(30, 60, 20, 0.55), rgba(0, 0, 0, 0.85)); color: #b6ff9e; animation: fade 3.5s ease-in-out forwards; }
+.fx-bell { background: radial-gradient(circle, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.95)); color: #d9d4c7; animation: fade 4s ease-in-out forwards; }
 .fx-message { background: rgba(0, 0, 0, 0.88); animation: fade 6s ease-in-out forwards; }
 .fx-message .fx-big { font-size: clamp(1.8rem, 9vw, 3.4rem); color: #ffd7d7; text-shadow: 0 0 24px var(--blood); }
 .fx-speak { background: radial-gradient(circle, rgba(40, 0, 0, 0.75), rgba(0, 0, 0, 0.95)); animation: fade-in 1s ease-out; transition: opacity 1.2s; }

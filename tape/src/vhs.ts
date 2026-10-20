@@ -111,6 +111,11 @@ export function overlay(ctx: CanvasRenderingContext2D, t: number, showPlay: bool
   osdText(ctx, time, 48, H - 52, 30);
 }
 
+/** VCR "■ STOP" in the corner: the tape has run out. */
+export function stopSign(ctx: CanvasRenderingContext2D): void {
+  osdText(ctx, "■ STOP", 48, 70);
+}
+
 /** Big glitchy text with RGB split, used for the warnings. */
 export function glitchText(ctx: CanvasRenderingContext2D, text: string, y: number, size: number, rand: () => number): void {
   ctx.save();

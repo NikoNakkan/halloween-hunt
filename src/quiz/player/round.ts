@@ -1,5 +1,5 @@
 // One question on a player's screen: answers, voting, removals and the reveal.
-import { playLaugh } from "../../audio/sfx";
+import { playBell } from "../../audio/sfx";
 import { runEffect } from "../../effects";
 import { clawAway, goneQuietly, wait } from "../anim";
 import { answersOf, correctSlot, currentResult, isRemoved, questionOf, roundKey, SLOTS, type Game } from "../logic";
@@ -102,7 +102,7 @@ export async function reveal(game: Game, quiet: boolean): Promise<void> {
       : `ΛΑΘΟΣ! Η ομάδα διάλεξε ${SLOTS[result.pick]}…`;
   banner.hidden = false;
   if (quiet) return;
-  if (result.correct) void playLaugh();
+  if (result.correct) playBell();
   else {
     await wait(900);
     if (!stale()) runEffect({ kind: "scream" });

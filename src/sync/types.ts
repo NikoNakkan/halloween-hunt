@@ -1,6 +1,6 @@
 import type { Found } from "../hunt";
 
-export type EffectKind = "scream" | "thunder" | "laugh" | "message" | "speak";
+export type EffectKind = "scream" | "thunder" | "bell" | "message" | "speak";
 
 /** A scare the admin broadcasts to every phone. */
 export interface HuntEvent {

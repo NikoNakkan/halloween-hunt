@@ -3,7 +3,7 @@ import "../../styles.css";
 import "../quiz.css";
 import { isMuted, setMuted, unlock } from "../../audio/engine";
 import { startMusic } from "../../audio/music";
-import { playLaugh, playThunder, startAmbientThunder } from "../../audio/sfx";
+import { playBell, playThunder, startAmbientThunder } from "../../audio/sfx";
 import { unlockVoice } from "../../audio/voice";
 import { TEXT } from "../../content";
 import { lightning, runEffect } from "../../effects";
@@ -87,7 +87,7 @@ function render(g: Game | null): void {
       window.setTimeout(() => {
         lightning();
         void playThunder();
-        window.setTimeout(() => void playLaugh(), 900);
+        window.setTimeout(() => playBell(0.7), 900);
       }, 2500);
     }
     return;
@@ -138,7 +138,7 @@ function init(): void {
       duration: 300,
       iterations: 2,
     });
-    void unlock().then(() => playLaugh());
+    void unlock().then(() => playThunder(0.7));
   });
 
   const mute = $<HTMLButtonElement>("#mute");

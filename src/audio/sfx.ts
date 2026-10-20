@@ -1,5 +1,6 @@
 // Sound effects: real CC0 recordings from public/sounds (see CREDITS.md),
 // with synthesized fallbacks if a file is missing or the browser can't decode it.
+import { tollBell } from "./bell";
 import { audio, loadSample, noiseBuffer, playBuffer, type Clip } from "./engine";
 
 type Synth = () => void;
@@ -72,27 +73,15 @@ function screamSynth(): void {
   }, 3);
 }
 
-function laughSynth(): void {
-  const { ctx } = audio();
-  const start = ctx.currentTime;
-  // "HA-HA-HA-ha-ha…": falling pitch, slowing down, like an old witch running out of breath.
-  for (let i = 0; i < 9; i++) {
-    const at = start + i * 0.22 + i * i * 0.008;
-    const base = 330 - i * 18;
-    voice(at, 0.16, (t, osc) => {
-      osc.frequency.setValueAtTime(base * 1.15, t);
-      osc.frequency.exponentialRampToValueAtTime(base * 0.85, t + 0.16);
-    }, 1.6);
-  }
-}
-
 // thunder.ogg is 44 s of rain; the crack hits at ~21 s, so play just that part.
 export const playThunder = (volume = 1) =>
   play("thunder", thunderSynth, [{ offset: 20.8, duration: 12, volume }]);
 export const playScream = () => play("scream", screamSynth, [{ volume: 1 }]);
-// The cackle is ~1.2 s: echo it lower and slower so it lingers.
-export const playLaugh = () =>
-  play("laugh", laughSynth, [{}, { delay: 1.15, rate: 0.85, volume: 0.8 }]);
+/** One distant church-bell toll (replaced grandma's laugh). */
+export function playBell(volume = 0.5): void {
+  const { ctx, out } = audio();
+  tollBell(ctx, out, ctx.currentTime + 0.02, volume);
+}
 
 let thunderTimer: number | undefined;
 

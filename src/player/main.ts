@@ -2,7 +2,7 @@
 import "../styles.css";
 import { isMuted, setMuted, unlock } from "../audio/engine";
 import { startMusic } from "../audio/music";
-import { playLaugh, startAmbientThunder } from "../audio/sfx";
+import { playBell, startAmbientThunder } from "../audio/sfx";
 import { unlockVoice } from "../audio/voice";
 import { START, TEXT } from "../content";
 import { lightning, runEffect } from "../effects";
@@ -44,7 +44,7 @@ function showProgress(found: Found, wasComplete: boolean): void {
   const done = isComplete(found);
   $("#done").hidden = !done;
   if (done && !wasComplete) {
-    void playLaugh();
+    playBell();
     lightning();
   }
 }
@@ -82,7 +82,7 @@ async function openCode(store: HuntStore, code: string | null): Promise<void> {
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (result.kind === "clue" && result.isNew) await store.markFound(result.clue.id);
   if (result.kind === "clue" && result.clue.id === START.id) {
-    window.setTimeout(() => void playLaugh(), 1200);
+    window.setTimeout(() => playBell(), 1200);
   }
 }
 
