@@ -115,11 +115,3 @@ export function roundKey(game: Game): string {
 export function isLastQuestion(game: Game): boolean {
   return game.index >= game.questions.length - 1;
 }
-
-export function verdict(points: number, total: number): string {
-  const ratio = total ? points / total : 0;
-  if (ratio === 1) return "Τέλειοι… Η γιαγιά σάς φοβάται λίγο.";
-  if (ratio >= 0.7) return "Καλοί… αλλά όχι αρκετά καλοί.";
-  if (ratio >= 0.4) return "Μέτριοι. Η γιαγιά γελάει.";
-  return "Χάθηκε κάθε ελπίδα. Η γιαγιά έρχεται για εσάς.";
-}

@@ -3,13 +3,13 @@ import "../../styles.css";
 import "../quiz.css";
 import { isMuted, setMuted, unlock } from "../../audio/engine";
 import { startMusic } from "../../audio/music";
-import { playLaugh, startAmbientThunder } from "../../audio/sfx";
+import { playLaugh, playThunder, startAmbientThunder } from "../../audio/sfx";
 import { unlockVoice } from "../../audio/voice";
 import { TEXT } from "../../content";
 import { lightning, runEffect } from "../../effects";
 import { serverNow } from "../../sync/db";
 import type { Unsubscribe } from "../../sync/types";
-import { roundKey, score, resultKey, verdict, type Game } from "../logic";
+import { roundKey, score, resultKey, type Game } from "../logic";
 import { createQuizStore, voterId, type QuizStore } from "../store";
 import { startTimer, stopTimer } from "../timer";
 import { hasPassed, isPassword, rememberPassed } from "./gate";
@@ -81,11 +81,14 @@ function render(g: Game | null): void {
     show("end");
     const points = score(g);
     $("#end-score").textContent = `${points} / ${g.questions.length}`;
-    $("#end-verdict").textContent = verdict(points, g.questions.length);
     if (endedFor !== g.id) {
       endedFor = g.id;
-      lightning();
-      void playLaugh();
+      // In time with "ΚΟΙΤΑ ΠΙΣΩ ΣΟΥ" flickering in (CSS delay 2.5 s).
+      window.setTimeout(() => {
+        lightning();
+        void playThunder();
+        window.setTimeout(() => void playLaugh(), 900);
+      }, 2500);
     }
     return;
   }
