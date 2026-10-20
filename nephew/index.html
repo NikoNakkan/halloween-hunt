@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="app-root" content="../" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0708" />
+    <meta name="robots" content="noindex" />
+    <title>Ο ανιψιός</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💀</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400;1,700&display=swap" rel="stylesheet" />
+  </head>
+  <body class="quiz">
+    <div class="fog" aria-hidden="true"></div>
+    <button id="mute" class="mute" type="button" aria-label="Ήχος"></button>
+
+    <form id="gate" class="gate" autocomplete="off">
+      <h1 class="title">Ποιο είναι το μυστικό;</h1>
+      <input id="password" class="password" type="text" autocapitalize="characters" spellcheck="false" placeholder="• • • • • •" />
+      <button class="enter" type="submit">Μπες… αν τολμάς</button>
+      <p id="gate-error" class="hint" hidden>Λάθος. Η γιαγιά γελάει.</p>
+    </form>
+
+    <main id="stage" class="stage" hidden>
+      <section id="lobby" class="card lobby">
+        <h1 class="title">Περιμένετε…</h1>
+        <p>Η γιαγιά ετοιμάζει τις ερωτήσεις. Μην κοιτάτε πίσω σας.</p>
+      </section>
+
+      <section id="round" class="round" hidden>
+        <div class="round-head">
+          <p id="q-meta" class="q-meta"></p>
+          <div id="timer" class="timer"><div class="timer-bar"></div><span class="timer-num"></span></div>
+        </div>
+        <h1 id="q-text" class="title q-text"></h1>
+        <div id="answers" class="answers"></div>
+        <p id="vote-status" class="vote-status"></p>
+        <p id="banner" class="banner" hidden></p>
+      </section>
+
+      <section id="end" class="card end" hidden>
+        <h1 class="title">Τέλος…</h1>
+        <p id="end-score" class="end-score"></p>
+        <p id="end-verdict" class="end-verdict"></p>
+      </section>
+
+      <ol id="score" class="score-strip" aria-label="Σκορ ομάδας"></ol>
+    </main>
+
+    <script type="module" src="/src/quiz/player/main.ts"></script>
+  </body>
+</html>

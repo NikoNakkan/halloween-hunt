@@ -1,6 +1,10 @@
 // Analog VHS look applied to a finished frame: wobble, tracking bar, colour bleed,
 // chroma shift, grain, scanlines, head-switching noise, vignette and the VCR overlay.
 
+import { rng } from "../../src/random";
+
+export { rng };
+
 export const W = 960;
 export const H = 720;
 
@@ -11,17 +15,6 @@ export interface VhsLook {
   trackingY: number | null;
   /** Overall brightness flicker multiplier, around 1. */
   flicker: number;
-}
-
-/** Seeded noise so a re-render produces exactly the same video. */
-export function rng(seed: number): () => number {
-  let s = seed >>> 0 || 1;
-  return () => {
-    s ^= s << 13;
-    s ^= s >>> 17;
-    s ^= s << 5;
-    return (s >>> 0) / 4294967296;
-  };
 }
 
 /** Copy `src` onto `dst` in horizontal strips with a wavy, jittery offset. */

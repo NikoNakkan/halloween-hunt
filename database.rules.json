@@ -12,19 +12,77 @@
       ".read": true,
       ".write": true,
       ".validate": "newData.hasChildren(['id', 'kind', 'at']) && newData.child('kind').val().matches(/^(scream|thunder|laugh|message|speak)$/)",
-      "id": { ".validate": "newData.isString() && newData.val().length < 40" },
-      "kind": { ".validate": true },
-      "at": { ".validate": "newData.isNumber() && newData.val() <= now" },
-      "name": { ".validate": "newData.isString() && newData.val().length <= 24" },
-      "text": { ".validate": "newData.isString() && newData.val().length <= 120" },
-      "audio": { ".validate": "newData.isString() && newData.val().length <= 400000" },
-      "$other": { ".validate": false }
+      "id": {
+        ".validate": "newData.isString() && newData.val().length < 40"
+      },
+      "kind": {
+        ".validate": true
+      },
+      "at": {
+        ".validate": "newData.isNumber() && newData.val() <= now"
+      },
+      "name": {
+        ".validate": "newData.isString() && newData.val().length <= 24"
+      },
+      "text": {
+        ".validate": "newData.isString() && newData.val().length <= 120"
+      },
+      "audio": {
+        ".validate": "newData.isString() && newData.val().length <= 400000"
+      },
+      "$other": {
+        ".validate": false
+      }
     },
     "names": {
       ".read": true,
       ".write": true,
       ".validate": "newData.hasChildren() || !newData.exists()",
-      "$i": { ".validate": "newData.isString() && newData.val().length <= 24" }
+      "$i": {
+        ".validate": "newData.isString() && newData.val().length <= 24"
+      }
+    },
+    "quiz": {
+      ".read": true,
+      "game": {
+        ".write": true,
+        ".validate": "newData.hasChildren(['id', 'questions', 'index', 'phase', 'deadline', 'seconds']) && newData.child('phase').val().matches(/^(lobby|question|reveal|end)$/)"
+      },
+      "votes": {
+        ".write": "!newData.exists()",
+        "$round": {
+          "$voter": {
+            ".write": "!data.exists() && root.child('quiz/game/phase').val() === 'question' && now <= root.child('quiz/game/deadline').val() + 2000",
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 3 && $voter.length <= 40"
+          }
+        }
+      },
+      "event": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['id', 'kind', 'at']) && newData.child('kind').val().matches(/^(scream|thunder|laugh|message|speak)$/)",
+        "id": {
+          ".validate": "newData.isString() && newData.val().length < 40"
+        },
+        "kind": {
+          ".validate": true
+        },
+        "at": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        },
+        "name": {
+          ".validate": "newData.isString() && newData.val().length <= 24"
+        },
+        "text": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "audio": {
+          ".validate": "newData.isString() && newData.val().length <= 400000"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
     }
   }
 }

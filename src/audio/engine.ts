@@ -30,10 +30,15 @@ export function setMuted(value: boolean): void {
   out.gain.setTargetAtTime(value ? 0 : 1, c.currentTime, 0.05);
 }
 
+/** Site root relative to this page: pages in subfolders declare <meta name="app-root" content="../">. */
+function appRoot(): string {
+  return document.querySelector<HTMLMetaElement>('meta[name="app-root"]')?.content ?? "./";
+}
+
 async function fetchSample(name: string): Promise<AudioBuffer | null> {
   for (const ext of ["ogg", "mp3"]) {
     try {
-      const res = await fetch(`sounds/${name}.${ext}`);
+      const res = await fetch(`${appRoot()}sounds/${name}.${ext}`);
       const type = res.headers.get("content-type") ?? "";
       // Dev servers answer missing files with index.html, so skip HTML responses.
       if (!res.ok || type.includes("html")) continue;

@@ -35,35 +35,7 @@
         </form>
       </section>
 
-      <section>
-        <h2>Soundboard</h2>
-        <div class="board">
-          <button class="fx-btn scream" data-kind="scream">😱<span>Κραυγή</span></button>
-          <button class="fx-btn thunder" data-kind="thunder">⚡<span>Κεραυνός</span></button>
-          <button class="fx-btn laugh" data-kind="laugh">🧙‍♀️<span>Γέλιο</span></button>
-        </div>
-        <form id="msg-form" class="row">
-          <input id="msg-input" placeholder="Μήνυμα σε όλους…" maxlength="120" />
-          <button type="submit" name="kind" value="message" title="Εμφάνιση στην οθόνη">Στείλε</button>
-          <button type="submit" name="kind" value="speak" title="Η γιαγιά το λέει φωναχτά">🗣️ Μίλα</button>
-        </form>
-        <label class="note"><input id="preview" type="checkbox" /> Παίξε και σε αυτό το κινητό</label>
-        <p id="sent" class="note" aria-live="polite"></p>
-      </section>
-
-      <section>
-        <details>
-          <summary><h2>🧙‍♀️ Φωνή γιαγιάς (ElevenLabs)</h2></summary>
-          <form id="voice-form" class="voice-form">
-            <input id="voice-key" type="password" autocomplete="off" placeholder="API key" />
-            <input id="voice-id" autocomplete="off" placeholder="Voice ID" />
-            <select id="voice-model"></select>
-            <button type="submit">Αποθήκευση &amp; δοκιμή</button>
-          </form>
-          <p class="note">Το κλειδί μένει μόνο σε αυτό το κινητό.</p>
-        </details>
-        <p id="voice-status" class="note" aria-live="polite"></p>
-      </section>
+      <div id="soundboard"></div>
 
       <section>
         <h2>Πρόοδος</h2>
