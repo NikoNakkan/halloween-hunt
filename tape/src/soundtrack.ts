@@ -1,5 +1,6 @@
 // Offline mix of the tape's sound, sample-accurate to the timeline.
 import { tollBell } from "../../src/audio/bell";
+import { rng } from "../../src/random";
 import { tapeChain } from "./analog";
 import { FOOTAGE_URL } from "./footage";
 import { loadRadio, radioBed } from "./radio";
@@ -11,10 +12,12 @@ async function decode(ctx: BaseAudioContext, url: string): Promise<AudioBuffer> 
   return ctx.decodeAudioData(await (await fetch(url)).arrayBuffer());
 }
 
+/** Seeded white noise, so every render of a cut sounds identical. */
 function noise(ctx: BaseAudioContext, seconds: number): AudioBuffer {
+  const rand = rng(1987);
   const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * seconds), ctx.sampleRate);
   const d = buf.getChannelData(0);
-  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  for (let i = 0; i < d.length; i++) d[i] = rand() * 2 - 1;
   return buf;
 }
 
