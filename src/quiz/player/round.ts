@@ -65,8 +65,12 @@ export async function reveal(game: Game, quiet: boolean): Promise<void> {
   revealedFor = key;
   const right = correctSlot(game.questions[game.index]);
   const total = result.counts.reduce((a, b) => a + b, 0) || 1;
+  // The admin may start the next question mid-animation: from then on this reveal
+  // must not touch the screen (the new question owns it).
+  const stale = () => builtFor !== key;
+  const buttons = answerButtons();
   $("#round").classList.add("revealed");
-  for (const btn of answerButtons()) {
+  for (const btn of buttons) {
     const slot = Number(btn.dataset.slot);
     btn.disabled = true;
     (btn.querySelector(".count") as HTMLElement).textContent = String(result.counts[slot]);
@@ -76,17 +80,19 @@ export async function reveal(game: Game, quiet: boolean): Promise<void> {
   const banner = $("#banner");
   if (quiet) {
     // Joined mid-reveal: show the outcome without replaying the drama.
-    answerButtons().forEach((b) => Number(b.dataset.slot) !== right && goneQuietly(b));
-    answerButtons()[right]?.classList.add("correct");
+    buttons.forEach((b) => Number(b.dataset.slot) !== right && goneQuietly(b));
+    buttons[right]?.classList.add("correct");
   } else {
     await wait(1600);
-    for (const btn of answerButtons()) {
+    for (const btn of buttons) {
+      if (stale()) return;
       if (Number(btn.dataset.slot) === right || btn.hidden) continue;
       void clawAway(btn);
       await wait(550);
     }
     await wait(700);
-    answerButtons()[right]?.classList.add("correct");
+    if (stale()) return;
+    buttons[right]?.classList.add("correct");
   }
   banner.className = `banner ${result.correct ? "win" : "lose"}`;
   banner.textContent = result.correct
@@ -99,6 +105,6 @@ export async function reveal(game: Game, quiet: boolean): Promise<void> {
   if (result.correct) void playLaugh();
   else {
     await wait(900);
-    runEffect({ kind: "scream" });
+    if (!stale()) runEffect({ kind: "scream" });
   }
 }
