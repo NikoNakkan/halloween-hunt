@@ -2,8 +2,9 @@
 import { encodeWebm } from "./encode";
 import { contactSheet, loadFootage, save } from "./footage";
 import { drawFrame } from "./picture";
+import { blackShirt } from "./recolor";
 import { mixSoundtrack } from "./soundtrack";
-import { DURATION, FPS } from "./timeline";
+import { CUTS, FPS, type CutName } from "./timeline";
 
 const screenCanvas = document.querySelector("#screen") as HTMLCanvasElement;
 const screen = screenCanvas.getContext("2d", { willReadFrequently: true }) as CanvasRenderingContext2D;
@@ -18,28 +19,35 @@ function canvasBlob(type: string): Promise<Blob> {
 }
 
 const tools = {
+  /** Save the black-shirt version of the masked-man photo for review. */
+  async shirt() {
+    const canvas = await blackShirt();
+    const blob = await new Promise<Blob>((r) => canvas.toBlob((b) => r(b as Blob), "image/png"));
+    return save("masked-black.png", blob);
+  },
   async sheet(from: number, to: number, step: number, name: string) {
     log(`sheet ${from}-${to}…`);
     return save(name, await contactSheet(await video(), from, to, step));
   },
   /** Save single frames as JPEGs for review, e.g. tape.stills([1, 3.1, 7.2]). */
-  async stills(times: number[]) {
+  async stills(times: number[], cut: CutName = "long") {
     const v = await video();
     for (const t of times) {
-      await drawFrame(screen, v, t);
+      await drawFrame(screen, v, t, CUTS[cut]);
       await save(`still-${t.toFixed(2)}.jpg`, await canvasBlob("image/jpeg"));
     }
     return `saved ${times.length} stills`;
   },
-  async render(name = "cursed-tape.webm") {
+  async render(cutName: CutName = "long", name = `cursed-tape-${cutName}.webm`) {
+    const cut = CUTS[cutName];
     const v = await video();
     log("mixing sound…");
-    const sound = await mixSoundtrack();
-    const frames = Math.round(DURATION * FPS);
+    const sound = await mixSoundtrack(cut);
+    const frames = Math.round(cut.duration * FPS);
     const bytes = await encodeWebm(
       frames,
       async (i) => {
-        await drawFrame(screen, v, i / FPS);
+        await drawFrame(screen, v, i / FPS, cut);
         return screenCanvas;
       },
       sound,

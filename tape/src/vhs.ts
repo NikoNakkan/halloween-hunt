@@ -81,6 +81,19 @@ export function snow(ctx: CanvasRenderingContext2D, rand: () => number, level = 
   ctx.putImageData(img, 0, 0);
 }
 
+/** The tape starts at 23:59:41 on Halloween 1987 and crosses midnight into 1 November. */
+export function vcrClock(t: number): { date: string; time: string } {
+  const total = 23 * 3600 + 59 * 60 + 41 + Math.floor(t);
+  const nextDay = total >= 24 * 3600;
+  const s = total % (24 * 3600);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const frames = Math.floor((t % 1) * 30);
+  return {
+    date: nextDay ? "ΚΥΡ 01 ΝΟΕ 1987" : "ΣΑΒ 31 ΟΚΤ 1987",
+    time: `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}:${pad(frames)}`,
+  };
+}
+
 function osdText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size = 34): void {
   ctx.font = `bold ${size}px "Courier New", monospace`;
   ctx.fillStyle = "rgba(0,0,0,0.6)";
@@ -93,10 +106,9 @@ function osdText(ctx: CanvasRenderingContext2D, text: string, x: number, y: numb
 export function overlay(ctx: CanvasRenderingContext2D, t: number, showPlay: boolean): void {
   if (showPlay && Math.floor(t * 2) % 2 === 0) osdText(ctx, "PLAY ▶", 48, 70);
   osdText(ctx, "SP", W - 110, 70);
-  const secs = 41 + Math.floor(t);
-  const frames = Math.floor((t % 1) * 30);
-  osdText(ctx, "ΣΑΒ 31 ΟΚΤ 1987", 48, H - 92, 30);
-  osdText(ctx, `23:59:${String(secs % 60).padStart(2, "0")}:${String(frames).padStart(2, "0")}`, 48, H - 52, 30);
+  const { date, time } = vcrClock(t);
+  osdText(ctx, date, 48, H - 92, 30);
+  osdText(ctx, time, 48, H - 52, 30);
 }
 
 /** Big glitchy text with RGB split, used for the warnings. */

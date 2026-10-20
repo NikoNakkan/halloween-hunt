@@ -1,6 +1,6 @@
 // Offline mix of the tape's sound, sample-accurate to the timeline.
 import { FOOTAGE_URL } from "./footage";
-import { DURATION, FLASHES, SHOTS, type FilmShot } from "./timeline";
+import { shotOfKind, stareShot, type Cut, type FilmShot } from "./timeline";
 
 export const SAMPLE_RATE = 48000;
 
@@ -30,7 +30,21 @@ function clip(ctx: OfflineAudioContext, buf: AudioBuffer, dest: AudioNode, start
   return src;
 }
 
-export async function mixSoundtrack(): Promise<AudioBuffer> {
+/** A short low thump under a subliminal frame: felt more than heard. */
+function thump(ctx: OfflineAudioContext, at: number, strength: number): void {
+  const osc = ctx.createOscillator();
+  osc.frequency.setValueAtTime(70, at);
+  osc.frequency.exponentialRampToValueAtTime(35, at + 0.35);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(strength, at);
+  g.gain.exponentialRampToValueAtTime(0.001, at + 0.4);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(at);
+  osc.stop(at + 0.45);
+}
+
+export async function mixSoundtrack(cut: Cut): Promise<AudioBuffer> {
+  const DURATION = cut.duration;
   const ctx = new OfflineAudioContext(2, Math.ceil(SAMPLE_RATE * DURATION), SAMPLE_RATE);
   const [film, scream, laugh] = await Promise.all([
     decode(ctx, FOOTAGE_URL),
@@ -48,7 +62,7 @@ export async function mixSoundtrack(): Promise<AudioBuffer> {
   lowCut.frequency.value = 90;
   tape.connect(lowCut).connect(ctx.destination);
 
-  for (const shot of SHOTS.filter((s): s is FilmShot => s.kind === "film")) {
+  for (const shot of cut.shots.filter((s): s is FilmShot => s.kind === "film")) {
     const src = clip(ctx, film, tape, shot.start, shot.end, 0.9, shot.from);
     const [r0, r1] = shot.rate;
     // Wow & flutter: the speed (and pitch) wavers like a stretched tape...
@@ -67,36 +81,52 @@ export async function mixSoundtrack(): Promise<AudioBuffer> {
   hissFilter.frequency.value = 2500;
   hissFilter.connect(ctx.destination);
   clip(ctx, hissBuf, hissFilter, 0, DURATION - 0.25, 0.05);
-  const bursts = [...FLASHES.map((f) => [f.start, f.end]), [6.6, 7.0], [0, 0.12]];
+  const bursts = [
+    ...cut.flashes.map((f) => [f.start, f.end]),
+    ...cut.shots.filter((s) => s.kind === "static").map((s) => [s.start, s.end]),
+    [0, 0.12],
+  ];
   for (const [s, e] of bursts) clip(ctx, hissBuf, ctx.destination, s, e, 0.35, s);
+  // Subliminal frames: a sharper crackle and a thump that grows as the tape decays.
+  cut.subliminals.forEach((g, i) => {
+    clip(ctx, hissBuf, ctx.destination, g.start, g.end + 0.03, 0.5, g.start);
+    thump(ctx, g.start, 0.3 + (0.5 * i) / Math.max(1, cut.subliminals.length - 1));
+  });
+
+  const stare = stareShot(cut);
+  const face = shotOfKind(cut, "face");
+  const outro = shotOfKind(cut, "outro");
+  if (!stare || !face || !outro) throw new Error("cut needs a stare, a face and an outro");
 
   // Low drone swelling under the stare.
   const drone = ctx.createOscillator();
   drone.type = "sawtooth";
-  drone.frequency.setValueAtTime(55, 5.0);
-  drone.frequency.linearRampToValueAtTime(41, 6.6);
+  const droneStart = stare.start - 0.2;
+  drone.frequency.setValueAtTime(55, droneStart);
+  drone.frequency.linearRampToValueAtTime(41, stare.end);
   const droneLp = ctx.createBiquadFilter();
   droneLp.type = "lowpass";
   droneLp.frequency.value = 220;
   const droneGain = ctx.createGain();
-  droneGain.gain.setValueAtTime(0, 5.0);
-  droneGain.gain.linearRampToValueAtTime(0.35, 6.55);
-  droneGain.gain.linearRampToValueAtTime(0, 6.6);
+  droneGain.gain.setValueAtTime(0, droneStart);
+  droneGain.gain.linearRampToValueAtTime(0.35, stare.end - 0.05);
+  droneGain.gain.linearRampToValueAtTime(0, stare.end);
   drone.connect(droneLp).connect(droneGain).connect(ctx.destination);
-  drone.start(5.0);
-  drone.stop(6.6);
+  drone.start(droneStart);
+  drone.stop(stare.end);
 
   // Jumpscare: scream + sub-bass hit.
-  clip(ctx, scream, ctx.destination, 7.0, 7.0 + scream.duration, 1);
+  const hit = face.start;
+  clip(ctx, scream, ctx.destination, hit, hit + scream.duration, 1);
   const boom = ctx.createOscillator();
-  boom.frequency.setValueAtTime(90, 7.0);
-  boom.frequency.exponentialRampToValueAtTime(30, 7.8);
+  boom.frequency.setValueAtTime(90, hit);
+  boom.frequency.exponentialRampToValueAtTime(30, hit + 0.8);
   const boomGain = ctx.createGain();
-  boomGain.gain.setValueAtTime(0.9, 7.0);
-  boomGain.gain.exponentialRampToValueAtTime(0.001, 7.9);
+  boomGain.gain.setValueAtTime(0.9, hit);
+  boomGain.gain.exponentialRampToValueAtTime(0.001, hit + 0.9);
   boom.connect(boomGain).connect(ctx.destination);
-  boom.start(7.0);
-  boom.stop(8.0);
+  boom.start(hit);
+  boom.stop(hit + 1);
 
   // Outro cackle, slowed and echoing.
   const echo = ctx.createDelay(1);
@@ -113,7 +143,7 @@ export async function mixSoundtrack(): Promise<AudioBuffer> {
   cackle.connect(cackleGain);
   cackleGain.connect(ctx.destination);
   cackleGain.connect(echo);
-  cackle.start(8.15);
+  cackle.start(outro.start + 0.15);
 
   return ctx.startRendering();
 }
