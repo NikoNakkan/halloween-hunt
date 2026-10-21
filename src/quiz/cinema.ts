@@ -29,20 +29,29 @@ function tape(): HTMLVideoElement {
   return video;
 }
 
+/** True while the enter-tap "start then pause" is still in flight. */
+let priming = false;
+
 /**
  * Call inside the enter tap: phones only let a video play with sound later if it
  * was started by a tap once. Start it and pause straight away (a click at most).
  */
 export function primeTape(): void {
   const v = tape();
+  priming = true;
+  v.load(); // phones often skip preloading; ask for the file now
   void v
     .play()
-    .then(() => v.pause())
-    .catch(() => undefined);
+    // On a slow phone this can resolve much later, even after the finale has
+    // started; only pause if we're still just priming.
+    .then(() => priming && v.pause())
+    .catch(() => undefined)
+    .finally(() => (priming = false));
 }
 
 /** Play the tape full-screen; resolves when it ends (or can't play). */
 export function playTape(): Promise<void> {
+  priming = false; // from now on nobody may pause the tape but us
   const v = tape();
   const screen = document.createElement("div");
   screen.className = "tape-screen";
@@ -53,30 +62,46 @@ export function playTape(): Promise<void> {
 
   return new Promise((resolve) => {
     let done = false;
+    let watchdog = 0;
     const finish = () => {
       if (done) return;
       done = true;
+      window.clearInterval(watchdog);
       v.pause();
       screen.remove();
       resolve();
     };
-    v.onended = finish;
-    v.onerror = finish;
-    // Safety net: never leave a phone stuck on a black screen.
-    window.setTimeout(finish, 45_000);
-
-    v.currentTime = 0;
-    v.play().catch(() => {
-      // Blocked anyway (e.g. low-power mode): one tap starts it.
+    // A tap always (re)starts it, whatever the phone decided.
+    const offerTap = () => {
+      if (done || screen.querySelector(".tape-tap")) return;
       const tap = document.createElement("button");
       tap.type = "button";
       tap.className = "tape-tap";
       tap.textContent = "▶ Πάτα";
       tap.onclick = () => {
         tap.remove();
-        void v.play().catch(finish);
+        void v.play().catch(offerTap);
       };
       screen.append(tap);
-    });
+    };
+    v.onended = finish;
+    v.onerror = finish;
+    // Never leave a phone stuck: if the picture hasn't moved for 4 s, offer the tap;
+    // and give up entirely after 75 s (slow download + 30 s tape).
+    let last = -1;
+    let still = 0;
+    watchdog = window.setInterval(() => {
+      if (v.currentTime !== last || v.ended) {
+        last = v.currentTime;
+        still = 0;
+        return;
+      }
+      still += 1;
+      if (still >= 4) offerTap();
+    }, 1000);
+    window.setTimeout(finish, 75_000);
+
+    v.currentTime = 0;
+    v.play().catch(offerTap);
   });
 }
