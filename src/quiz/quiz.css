@@ -145,3 +145,19 @@
 .score-strip { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; padding: 0; }
 .score-strip li { width: 30px; text-align: center; font-size: 1.2rem; color: var(--muted); }
 .score-strip li.dead { filter: grayscale(0.4); }
+
+/* The cursed tape, full-screen over everything. */
+.tape-screen { position: fixed; inset: 0; z-index: 80; background: #000; display: grid; place-items: center; }
+.tape-video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.tape-tap {
+  position: absolute;
+  font: inherit;
+  font-size: 1.6rem;
+  padding: 16px 32px;
+  border-radius: 999px;
+  border: 1px solid var(--blood);
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--ink);
+  box-shadow: 0 0 24px var(--blood-glow);
+}
+

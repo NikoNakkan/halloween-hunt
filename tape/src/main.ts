@@ -1,5 +1,5 @@
 // Tape tool entry: exposes helpers on window so they can be driven from the console.
-import { encodeWebm } from "./encode";
+import { encode } from "./encode";
 import { contactSheet, loadFootage, save } from "./footage";
 import { drawFrame } from "./picture";
 import { blackShirt } from "./recolor";
@@ -38,25 +38,35 @@ const tools = {
     }
     return `saved ${times.length} stills`;
   },
-  async render(cutName: CutName = "long", name = `cursed-tape-${cutName}.webm`) {
+  /** Render a cut: a full-quality WebM master plus small web copies (MP4 + WebM). */
+  async render(cutName: CutName = "long") {
     const cut = CUTS[cutName];
     const v = await video();
     log("mixing sound…");
     const sound = await mixSoundtrack(cut);
     const frames = Math.round(cut.duration * FPS);
-    const bytes = await encodeWebm(
+    const outputs = [
+      { name: `cursed-tape-${cutName}.webm`, spec: { format: "webm", videoBitrate: 6_000_000, audioBitrate: 160_000 } },
+      { name: `cursed-tape-${cutName}-web.mp4`, spec: { format: "mp4", videoBitrate: 1_800_000, audioBitrate: 128_000 } },
+      { name: `cursed-tape-${cutName}-web.webm`, spec: { format: "webm", videoBitrate: 1_800_000, audioBitrate: 112_000 } },
+    ] as const;
+    const files = await encode(
       frames,
       async (i) => {
         await drawFrame(screen, v, i / FPS, cut);
         return screenCanvas;
       },
       sound,
+      outputs.map((o) => o.spec),
       log,
     );
-    log(`saving ${(bytes.byteLength / 1e6).toFixed(1)} MB…`);
-    const result = await save(name, bytes);
-    log(result);
-    return `${result} (${(bytes.byteLength / 1e6).toFixed(1)} MB)`;
+    const report: string[] = [];
+    for (const [i, bytes] of files.entries()) {
+      await save(outputs[i].name, bytes);
+      report.push(`${outputs[i].name} ${(bytes.byteLength / 1e6).toFixed(1)} MB`);
+    }
+    log(`saved: ${report.join(", ")}`);
+    return report.join(", ");
   },
 };
 

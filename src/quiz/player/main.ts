@@ -9,7 +9,8 @@ import { TEXT } from "../../content";
 import { lightning, runEffect } from "../../effects";
 import { serverNow } from "../../sync/db";
 import type { Unsubscribe } from "../../sync/types";
-import { roundKey, score, resultKey, type Game } from "../logic";
+import { primeTape, playTape } from "../cinema";
+import { isLastQuestion, roundKey, score, resultKey, type Game } from "../logic";
 import { createQuizStore, voterId, type QuizStore } from "../store";
 import { startTimer, stopTimer } from "../timer";
 import { hasPassed, isPassword, rememberPassed } from "./gate";
@@ -24,6 +25,9 @@ let votes: Record<string, number> = {};
 let votesFor = "";
 let stopVotes: Unsubscribe | null = null;
 let endedFor = "";
+/** Game id whose cursed tape has started / finished on this phone. */
+let finaleStarted = "";
+let finaleDone = "";
 
 function show(section: "lobby" | "round" | "end"): void {
   for (const id of ["lobby", "round", "end"]) $(`#${id}`).hidden = id !== section;
@@ -76,20 +80,10 @@ function render(g: Game | null): void {
     return;
   }
   renderScore(g);
+  if (finaleDone === g.id) return showEnd(g);
   if (g.phase === "end") {
     stopTimer();
-    show("end");
-    const points = score(g);
-    $("#end-score").textContent = `${points} / ${g.questions.length}`;
-    if (endedFor !== g.id) {
-      endedFor = g.id;
-      // In time with "ΚΟΙΤΑ ΠΙΣΩ ΣΟΥ" flickering in (CSS delay 2.5 s).
-      window.setTimeout(() => {
-        lightning();
-        void playThunder();
-        window.setTimeout(() => playBell(0.7), 900);
-      }, 2500);
-    }
+    void finale(g); // admin ended before the tape ran: play it now
     return;
   }
   show("round");
@@ -101,13 +95,42 @@ function render(g: Game | null): void {
   } else {
     stopTimer();
     // Joining (or reloading) during a reveal shouldn't replay the scare.
-    void reveal(g, fresh);
+    void reveal(g, fresh).then(() => {
+      // After the last answer: a breath, then the cursed tape.
+      if (isLastQuestion(g) && !fresh) window.setTimeout(() => void finale(g), 2500);
+    });
   }
   refreshVotes();
 }
 
+/** The cursed tape, once per game, then the ending. */
+async function finale(g: Game): Promise<void> {
+  if (finaleStarted === g.id) return;
+  finaleStarted = g.id;
+  stopTimer();
+  await playTape();
+  finaleDone = g.id;
+  showEnd(game?.id === g.id ? game : g);
+}
+
+function showEnd(g: Game): void {
+  stopTimer();
+  show("end");
+  renderScore(g);
+  $("#end-score").textContent = `${score(g)} / ${g.questions.length}`;
+  if (endedFor === g.id) return;
+  endedFor = g.id;
+  // In time with "ΚΟΙΤΑ ΠΙΣΩ ΣΟΥ" flickering in (CSS delay 2.5 s).
+  window.setTimeout(() => {
+    lightning();
+    void playThunder();
+    window.setTimeout(() => playBell(0.7), 900);
+  }, 2500);
+}
+
 async function enter(): Promise<void> {
   unlockVoice(); // must run synchronously inside the tap for iOS
+  primeTape(); // same: lets the finale video play with sound later
   await unlock();
   void startMusic();
   startAmbientThunder(lightning);

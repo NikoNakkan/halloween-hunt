@@ -1,45 +1,65 @@
-// Encodes rendered frames + the mixed soundtrack into a WebM (VP9 + Opus), offline.
-import { ArrayBufferTarget, Muxer } from "webm-muxer";
+// Encodes rendered frames + the mixed soundtrack offline with WebCodecs.
+// One pass can feed several outputs (e.g. a big WebM master and a small web MP4).
+import { ArrayBufferTarget as Mp4Target, Muxer as Mp4Muxer } from "mp4-muxer";
+import { ArrayBufferTarget as WebmTarget, Muxer as WebmMuxer } from "webm-muxer";
 import { FPS } from "./timeline";
 import { H, W } from "./vhs";
 
-async function pickVideoCodec(): Promise<{ webcodecs: string; matroska: string }> {
-  const vp9 = { codec: "vp09.00.10.08", width: W, height: H, bitrate: 6_000_000, framerate: FPS };
-  if ((await VideoEncoder.isConfigSupported(vp9)).supported) return { webcodecs: vp9.codec, matroska: "V_VP9" };
-  return { webcodecs: "vp8", matroska: "V_VP8" };
+export interface OutputSpec {
+  format: "webm" | "mp4";
+  videoBitrate: number;
+  audioBitrate: number;
 }
 
-export async function encodeWebm(
-  frames: number,
-  drawFrame: (i: number) => Promise<HTMLCanvasElement>,
-  sound: AudioBuffer,
-  progress: (text: string) => void,
-): Promise<ArrayBuffer> {
-  const codec = await pickVideoCodec();
-  const muxer = new Muxer({
-    target: new ArrayBufferTarget(),
-    video: { codec: codec.matroska, width: W, height: H, frameRate: FPS },
-    audio: { codec: "A_OPUS", sampleRate: sound.sampleRate, numberOfChannels: 2 },
-  });
-  const fail = (e: DOMException) => {
-    throw e;
-  };
+interface Output {
+  spec: OutputSpec;
+  video: VideoEncoder;
+  audio: AudioEncoder;
+  finish: () => ArrayBuffer;
+}
 
+const fail = (e: DOMException) => {
+  throw e;
+};
+
+function createOutput(spec: OutputSpec, sampleRate: number): Output {
+  // WebM: VP9 + Opus (desktop master). MP4: H.264 + AAC (plays on iPhones too).
+  const webm = spec.format === "webm";
+  const muxer = webm
+    ? new WebmMuxer({
+        target: new WebmTarget(),
+        video: { codec: "V_VP9", width: W, height: H, frameRate: FPS },
+        audio: { codec: "A_OPUS", sampleRate, numberOfChannels: 2 },
+      })
+    : new Mp4Muxer({
+        target: new Mp4Target(),
+        video: { codec: "avc", width: W, height: H },
+        audio: { codec: "aac", sampleRate, numberOfChannels: 2 },
+        fastStart: "in-memory", // index up front, so phones can start playing while loading
+      });
   const video = new VideoEncoder({ output: (c, m) => muxer.addVideoChunk(c, m), error: fail });
-  video.configure({ codec: codec.webcodecs, width: W, height: H, bitrate: 6_000_000, framerate: FPS });
-  for (let i = 0; i < frames; i++) {
-    const canvas = await drawFrame(i);
-    const frame = new VideoFrame(canvas, { timestamp: Math.round((i * 1e6) / FPS), duration: Math.round(1e6 / FPS) });
-    video.encode(frame, { keyFrame: i % FPS === 0 });
-    frame.close();
-    while (video.encodeQueueSize > 8) await new Promise((r) => setTimeout(r, 5));
-    if (i % 10 === 0) progress(`video ${i}/${frames} (${codec.matroska})`);
-  }
-  await video.flush();
-
+  video.configure({
+    codec: webm ? "vp09.00.10.08" : "avc1.4D401F",
+    width: W,
+    height: H,
+    bitrate: spec.videoBitrate,
+    framerate: FPS,
+    ...(webm ? {} : { avc: { format: "avc" as const } }),
+  });
   const audio = new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: fail });
-  audio.configure({ codec: "opus", sampleRate: sound.sampleRate, numberOfChannels: 2, bitrate: 160_000 });
-  const block = 4800;
+  audio.configure({ codec: webm ? "opus" : "mp4a.40.2", sampleRate, numberOfChannels: 2, bitrate: spec.audioBitrate });
+  return {
+    spec,
+    video,
+    audio,
+    finish: () => {
+      muxer.finalize();
+      return muxer.target.buffer;
+    },
+  };
+}
+
+function* audioChunks(sound: AudioBuffer, block = 4800): Generator<AudioData> {
   const left = sound.getChannelData(0);
   const right = sound.getChannelData(1);
   for (let start = 0; start < sound.length; start += block) {
@@ -47,7 +67,7 @@ export async function encodeWebm(
     const data = new Float32Array(n * 2);
     data.set(left.subarray(start, start + n), 0);
     data.set(right.subarray(start, start + n), n);
-    const chunk = new AudioData({
+    yield new AudioData({
       format: "f32-planar",
       sampleRate: sound.sampleRate,
       numberOfFrames: n,
@@ -55,11 +75,34 @@ export async function encodeWebm(
       timestamp: Math.round((start * 1e6) / sound.sampleRate),
       data,
     });
-    audio.encode(chunk);
-    chunk.close();
   }
-  await audio.flush();
+}
+
+/** Draw every frame once and encode it into each requested output. */
+export async function encode(
+  frames: number,
+  drawFrame: (i: number) => Promise<HTMLCanvasElement>,
+  sound: AudioBuffer,
+  specs: OutputSpec[],
+  progress: (text: string) => void,
+): Promise<ArrayBuffer[]> {
+  const outputs = specs.map((s) => createOutput(s, sound.sampleRate));
+  for (let i = 0; i < frames; i++) {
+    const canvas = await drawFrame(i);
+    const frame = new VideoFrame(canvas, { timestamp: Math.round((i * 1e6) / FPS), duration: Math.round(1e6 / FPS) });
+    for (const o of outputs) o.video.encode(frame, { keyFrame: i % FPS === 0 });
+    frame.close();
+    while (outputs.some((o) => o.video.encodeQueueSize > 8)) await new Promise((r) => setTimeout(r, 5));
+    if (i % 10 === 0) progress(`video ${i}/${frames} → ${specs.map((s) => s.format).join(" + ")}`);
+  }
+  for (const o of outputs) {
+    await o.video.flush();
+    for (const chunk of audioChunks(sound)) {
+      o.audio.encode(chunk);
+      chunk.close();
+    }
+    await o.audio.flush();
+  }
   progress("muxing…");
-  muxer.finalize();
-  return muxer.target.buffer;
+  return outputs.map((o) => o.finish());
 }

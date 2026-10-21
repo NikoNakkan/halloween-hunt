@@ -97,3 +97,9 @@ export function startAmbientThunder(onStrike: () => void): void {
   };
   next();
 }
+
+/** Silence the random thunder (e.g. while the cursed tape plays). */
+export function stopAmbientThunder(): void {
+  window.clearTimeout(thunderTimer);
+  thunderTimer = undefined;
+}
