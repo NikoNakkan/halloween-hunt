@@ -33,6 +33,8 @@ export interface Subliminal {
   start: number;
   end: number;
   style: "plain" | "negative" | "red";
+  /** The final scare: the scream lands on this one. */
+  scare?: boolean;
 }
 
 export interface Cut {
@@ -43,10 +45,11 @@ export interface Cut {
   subliminals: Subliminal[];
 }
 
-const sub = (start: number, frames: number, style: Subliminal["style"]): Subliminal => ({
+const sub = (start: number, frames: number, style: Subliminal["style"], scare = false): Subliminal => ({
   start,
   end: start + frames * FRAME,
   style,
+  ...(scare ? { scare } : {}),
 });
 
 /** The original 9-second tape. */
@@ -86,9 +89,8 @@ export const LONG: Cut = {
     { kind: "film", start: 19.5, end: 21.5, from: 278.0, rate: [1, 1] }, // falls to pieces
     { kind: "static", start: 21.5, end: 21.8 },
     { kind: "film", start: 21.8, end: 25.2, from: 272.0, rate: [1, 0], zoom: 1.4 }, // stares, tape dies
-    { kind: "static", start: 25.2, end: 25.7 },
-    { kind: "face", start: 25.7, end: 27.0 },
-    { kind: "outro", start: 27.0, end: 30 },
+    { kind: "static", start: 25.2, end: 26.4 }, // the masked man breaks through here (final scare)
+    { kind: "outro", start: 26.4, end: 30 },
   ],
   flashes: [
     { start: 8.9, end: 9.07, text: "ΜΗΝ ΚΟΙΤΑΣ ΠΙΣΩ ΣΟΥ" },
@@ -96,18 +98,19 @@ export const LONG: Cut = {
     { start: 20.6, end: 20.76, text: "ΕΙΝΑΙ ΗΔΗ ΕΚΕΙ" },
   ],
   stare: { start: 23.0, end: 25.2, text: "Η ΓΙΑΓΙΑ ΣΕ ΒΛΕΠΕΙ" },
-  // Rare at first, then more often (and longer) as the tape falls apart.
+  // Only ever seen through a filter. Rare at first, then more often (and longer)
+  // as the tape falls apart; the last one is the scare.
   subliminals: [
-    sub(4.3, 2, "plain"),
-    sub(11.1, 2, "negative"),
-    sub(14.0, 3, "red"),
-    sub(16.0, 2, "plain"),
-    sub(19.0, 3, "negative"),
-    sub(20.9, 2, "plain"),
-    sub(21.6, 4, "plain"),
-    sub(24.0, 2, "red"),
-    sub(24.7, 2, "negative"),
-    sub(25.35, 5, "red"),
+    sub(4.3, 4, "negative"),
+    sub(11.1, 4, "red"),
+    sub(14.0, 5, "negative"),
+    sub(16.0, 4, "red"),
+    sub(19.0, 5, "negative"),
+    sub(20.9, 4, "red"),
+    sub(21.55, 6, "negative"),
+    sub(24.0, 4, "red"),
+    sub(24.7, 4, "negative"),
+    sub(25.55, 8, "red", true),
   ],
 };
 
@@ -120,6 +123,12 @@ export function shotAt(cut: Cut, t: number): Shot {
 
 export function subliminalAt(cut: Cut, t: number): Subliminal | undefined {
   return cut.subliminals.find((s) => t >= s.start && t < s.end);
+}
+
+/** When the scream hits: grandma's face if the cut has one, else the scare flash. */
+export function scareTime(cut: Cut): number | undefined {
+  const face = cut.shots.find((s) => s.kind === "face");
+  return face?.start ?? cut.subliminals.find((s) => s.scare)?.start;
 }
 
 /** The shot that slows to a stop. */

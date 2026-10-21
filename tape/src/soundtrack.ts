@@ -4,7 +4,7 @@ import { rng } from "../../src/random";
 import { tapeChain } from "./analog";
 import { FOOTAGE_URL } from "./footage";
 import { loadRadio, radioBed } from "./radio";
-import { shotOfKind, stareShot, type Cut, type FilmShot } from "./timeline";
+import { scareTime, shotOfKind, stareShot, type Cut, type FilmShot } from "./timeline";
 
 export const SAMPLE_RATE = 48000;
 
@@ -102,9 +102,9 @@ export async function mixSoundtrack(cut: Cut): Promise<AudioBuffer> {
   });
 
   const stare = stareShot(cut);
-  const face = shotOfKind(cut, "face");
+  const hit = scareTime(cut);
   const outro = shotOfKind(cut, "outro");
-  if (!stare || !face || !outro) throw new Error("cut needs a stare, a face and an outro");
+  if (!stare || hit === undefined || !outro) throw new Error("cut needs a stare, a scare and an outro");
 
   // An old Greek radio in the next room, until the tape starts dying.
   radioBed(ctx, mix, radio, hissBuf, 0.7, stare.start);
@@ -127,7 +127,6 @@ export async function mixSoundtrack(cut: Cut): Promise<AudioBuffer> {
   drone.stop(stare.end);
 
   // Jumpscare: scream + sub-bass hit.
-  const hit = face.start;
   clip(ctx, scream, mix, hit, hit + scream.duration, 1);
   const boom = ctx.createOscillator();
   boom.frequency.setValueAtTime(90, hit);

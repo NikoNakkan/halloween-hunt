@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CUTS, FPS, filmTime, shotAt, stareShot, subliminalAt } from "./timeline";
+import { CUTS, FPS, filmTime, scareTime, shotAt, stareShot, subliminalAt } from "./timeline";
 
 describe.each(Object.entries(CUTS))("%s cut", (_, cut) => {
   it("covers the whole clip without gaps", () => {
@@ -8,9 +8,9 @@ describe.each(Object.entries(CUTS))("%s cut", (_, cut) => {
     cut.shots.slice(1).forEach((s, i) => expect(s.start).toBe(cut.shots[i].end));
   });
 
-  it("opens on PLAY and jumps out with the face", () => {
+  it("opens on PLAY and has a scare for the scream", () => {
     expect(shotAt(cut, 0.1).kind).toBe("play");
-    expect(cut.shots.some((s) => s.kind === "face")).toBe(true);
+    expect(scareTime(cut)).toBeDefined();
   });
 
   it("slows the stare down to a stop", () => {
@@ -24,14 +24,17 @@ describe.each(Object.entries(CUTS))("%s cut", (_, cut) => {
 
   it("keeps subliminal flashes to a few frames inside the clip", () => {
     for (const s of cut.subliminals) {
-      expect((s.end - s.start) * FPS).toBeLessThanOrEqual(5.01);
+      expect((s.end - s.start) * FPS).toBeLessThanOrEqual(8.01);
       expect(s.end).toBeLessThan(cut.duration);
       expect(subliminalAt(cut, s.start + 0.001)).toBe(s);
     }
   });
 });
 
-it("the long cut is 30 seconds with the masked man in it", () => {
+it("the long cut shows the masked man only through filters, and no face", () => {
   expect(CUTS.long.duration).toBe(30);
   expect(CUTS.long.subliminals.length).toBeGreaterThan(5);
+  expect(CUTS.long.subliminals.every((s) => s.style !== "plain")).toBe(true);
+  expect(CUTS.long.shots.some((s) => s.kind === "face")).toBe(false);
+  expect(scareTime(CUTS.long)).toBe(CUTS.long.subliminals.at(-1)?.start);
 });
