@@ -10,7 +10,7 @@ import { lightning, runEffect } from "../../effects";
 import { serverNow } from "../../sync/db";
 import type { Unsubscribe } from "../../sync/types";
 import { primeTape, playTape } from "../cinema";
-import { isLastQuestion, roundKey, score, resultKey, type Game } from "../logic";
+import { isLastQuestion, roundKey, resultKey, type Game } from "../logic";
 import { createQuizStore, voterId, type QuizStore } from "../store";
 import { startTimer, stopTimer } from "../timer";
 import { hasPassed, isPassword, rememberPassed } from "./gate";
@@ -79,8 +79,8 @@ function render(g: Game | null): void {
     $("#score").innerHTML = "";
     return;
   }
-  renderScore(g);
   if (finaleDone === g.id) return showEnd(g);
+  renderScore(g);
   if (g.phase === "end") {
     stopTimer();
     void finale(g); // admin ended before the tape ran: play it now
@@ -116,16 +116,15 @@ async function finale(g: Game): Promise<void> {
 function showEnd(g: Game): void {
   stopTimer();
   show("end");
-  renderScore(g);
-  $("#end-score").textContent = `${score(g)} / ${g.questions.length}`;
+  $("#score").innerHTML = ""; // no team score at the end: only the warning
   if (endedFor === g.id) return;
   endedFor = g.id;
-  // In time with "ΚΟΙΤΑ ΠΙΣΩ ΣΟΥ" flickering in (CSS delay 2.5 s).
+  // In time with "ΚΟΙΤΑ ΠΙΣΩ ΣΟΥ" flickering in (CSS delay 1 s).
   window.setTimeout(() => {
     lightning();
     void playThunder();
     window.setTimeout(() => playBell(0.7), 900);
-  }, 2500);
+  }, 1000);
 }
 
 async function enter(): Promise<void> {
