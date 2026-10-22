@@ -14,6 +14,16 @@ import { isPassword } from "./gate";
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel) as T;
 
 let soundOn = false;
+let unlocked = false;
+let notify: (ready: boolean) => void = () => undefined;
+
+/** The game may only run on this phone once the quiz is open AND its sound is on. */
+function update(): void {
+  $("#gate").hidden = unlocked;
+  $("#stage").hidden = !unlocked;
+  $("#sound-on").hidden = !unlocked || soundOn;
+  notify(unlocked && soundOn);
+}
 
 /** Must run inside a tap: unlocks audio, speech and the finale video. */
 function enableSound(): void {
@@ -23,20 +33,22 @@ function enableSound(): void {
   primeTape();
   void unlock().then(() => startMusic());
   startAmbientThunder(lightning);
-  $("#sound-on").hidden = true;
+  update();
 }
 
-/** `onOpen` hears every change of the shared open/locked state. */
-export function setupEntry(store: QuizStore, onOpen: (open: boolean) => void): void {
+/**
+ * `onReady(true)` once this phone may run the game: the quiz is open (shared) and
+ * this phone has tapped for sound (sound is not optional). `false` when locked again.
+ */
+export function setupEntry(store: QuizStore, onReady: (ready: boolean) => void): void {
+  notify = onReady;
   const gate = $<HTMLFormElement>("#gate");
   const input = $<HTMLInputElement>("#password");
 
   store.onUnlocked((open) => {
-    gate.hidden = open;
-    $("#stage").hidden = !open;
-    $("#sound-on").hidden = !open || soundOn;
+    unlocked = open;
     if (open) startSpooky();
-    onOpen(open);
+    update();
   });
 
   gate.addEventListener("submit", (e) => {
@@ -54,11 +66,11 @@ export function setupEntry(store: QuizStore, onOpen: (open: boolean) => void): v
     void unlock().then(() => playThunder(0.7));
   });
 
-  // Opened by someone else: the first tap anywhere on the quiz turns sound on.
+  // Opened by someone else: the cover's tap (or any tap) turns sound on.
   document.addEventListener(
     "pointerdown",
     () => {
-      if (!$("#stage").hidden) enableSound();
+      if (unlocked) enableSound();
     },
     { capture: true },
   );

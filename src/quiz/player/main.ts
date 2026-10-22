@@ -1,10 +1,8 @@
 // GRANDDAUGHTER quiz player: password, then live rounds driven by the admin through Firebase.
 import "../../styles.css";
 import "../quiz.css";
-import { isMuted, setMuted } from "../../audio/engine";
 import { playThunder } from "../../audio/sfx";
 import { playWail } from "../../audio/wail";
-import { TEXT } from "../../content";
 import { lightning, runEffect } from "../../effects";
 import { serverNow } from "../../sync/db";
 import type { Unsubscribe } from "../../sync/types";
@@ -27,7 +25,8 @@ let endedFor = "";
 /** Game id whose cursed tape has started / finished on this phone. */
 let finaleStarted = "";
 let finaleDone = "";
-/** Nothing of the game (rounds, scares, the finale tape) runs while the quiz is locked. */
+/** Nothing of the game (rounds, scares, the finale tape) runs until the quiz is open
+ *  and this phone has tapped for sound. */
 let open = false;
 
 function show(section: "lobby" | "round" | "end"): void {
@@ -74,7 +73,7 @@ function renderScore(g: Game): void {
 
 function render(g: Game | null): void {
   game = g;
-  if (!open) return; // still behind the password: catch up when it opens
+  if (!open) return; // locked, or sound not on yet: catch up once ready
   if (!g || g.phase === "lobby") {
     stopTimer();
     show("lobby");
@@ -131,20 +130,13 @@ function showEnd(g: Game): void {
 
 function init(): void {
   store = createQuizStore();
-  setupEntry(store, (isOpen) => {
-    open = isOpen;
-    if (open) render(game);
+  setupEntry(store, (ready) => {
+    const was = open;
+    open = ready;
+    if (open && !was) render(game);
   });
   store.onGame(render);
   store.onEvent((event) => open && runEffect(event));
-
-  const mute = $<HTMLButtonElement>("#mute");
-  const label = () => (mute.textContent = isMuted() ? TEXT.muteOn : TEXT.muteOff);
-  label();
-  mute.addEventListener("click", () => {
-    setMuted(!isMuted());
-    label();
-  });
 }
 
 init();

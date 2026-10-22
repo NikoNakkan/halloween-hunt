@@ -1,6 +1,6 @@
 // Player page: tap-to-enter gate, then the scanned clue, live shared progress and scares.
 import "../styles.css";
-import { isMuted, setMuted, unlock } from "../audio/engine";
+import { unlock } from "../audio/engine";
 import { startMusic } from "../audio/music";
 import { startAmbientThunder } from "../audio/sfx";
 import { playWail } from "../audio/wail";
@@ -109,14 +109,6 @@ function init(): void {
   const enterBtn = $<HTMLButtonElement>("#enter");
   enterBtn.textContent = TEXT.enterButton;
   enterBtn.addEventListener("click", () => void enter(), { once: true });
-
-  const mute = $<HTMLButtonElement>("#mute");
-  const label = () => (mute.textContent = isMuted() ? TEXT.muteOn : TEXT.muteOff);
-  label();
-  mute.addEventListener("click", () => {
-    setMuted(!isMuted());
-    label();
-  });
 }
 
 init();

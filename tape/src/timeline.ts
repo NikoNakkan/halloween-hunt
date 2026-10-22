@@ -101,16 +101,16 @@ export const LONG: Cut = {
   // Only ever seen through a filter. Rare at first, then more often (and longer)
   // as the tape falls apart; the last one is the scare.
   subliminals: [
-    sub(4.3, 7, "negative"),
-    sub(11.1, 7, "red"),
-    sub(14.0, 8, "negative"),
-    sub(16.0, 7, "red"),
-    sub(19.0, 8, "negative"),
-    sub(20.9, 7, "red"),
-    sub(21.5, 9, "negative"),
-    sub(24.0, 7, "red"),
-    sub(24.65, 7, "negative"),
-    sub(25.5, 12, "red", true),
+    sub(4.3, 12, "negative"),
+    sub(11.1, 12, "red"),
+    sub(14.0, 13, "negative"),
+    sub(16.0, 12, "red"),
+    sub(19.0, 13, "negative"),
+    sub(20.8, 12, "red"),
+    sub(21.45, 14, "negative"),
+    sub(23.9, 12, "red"),
+    sub(24.55, 12, "negative"),
+    sub(25.3, 20, "red", true),
   ],
 };
 

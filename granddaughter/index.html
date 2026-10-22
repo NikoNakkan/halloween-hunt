@@ -14,8 +14,11 @@
   </head>
   <body class="quiz">
     <div class="fog" aria-hidden="true"></div>
-    <button id="mute" class="mute" type="button" aria-label="Ήχος"></button>
-    <button id="sound-on" class="sound-on" type="button" hidden>🔊 Πάτα για ήχο</button>
+    <!-- Sound is not optional: phones opened by someone else's password must tap through this. -->
+    <button id="sound-on" class="sound-gate" type="button" hidden>
+      <span class="title">Η γιαγιά θέλει να την ακούς…</span>
+      <span class="sound-gate-tap">Πάτα για να συνεχίσεις 🔊</span>
+    </button>
 
     <form id="gate" class="gate" autocomplete="off" hidden>
       <h1 class="title">Ποιο είναι το μυστικό;</h1>

@@ -161,21 +161,31 @@
   box-shadow: 0 0 24px var(--blood-glow);
 }
 
-/* Phones opened by someone else's password: one tap for sound. */
-.sound-on {
+/* Phones opened by someone else's password: a tap is required (it turns sound on). */
+.sound-gate {
   position: fixed;
-  left: 50%;
-  bottom: max(18px, env(safe-area-inset-bottom));
-  z-index: 70;
-  transform: translateX(-50%);
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-content: center;
+  gap: 22px;
+  padding: 24px 16px;
+  border: 0;
   font: inherit;
-  font-size: 1.15rem;
-  padding: 12px 24px;
+  text-align: center;
+  color: var(--ink);
+  background: radial-gradient(ellipse at 50% 30%, #2a1214 0%, #050303 70%);
+  cursor: pointer;
+}
+.sound-gate .title { font-size: clamp(1.8rem, 8vw, 2.6rem); animation: pulse 3s ease-in-out infinite; }
+.sound-gate-tap {
+  justify-self: center;
+  font-size: 1.25rem;
+  padding: 14px 28px;
   border-radius: 999px;
   border: 1px solid var(--blood);
-  background: rgba(20, 0, 0, 0.85);
-  color: var(--ink);
-  box-shadow: 0 0 20px var(--blood-glow);
+  background: linear-gradient(#3a0c10, #1a0607);
+  box-shadow: 0 0 24px var(--blood-glow);
   animation: pulse-frame 1.6s ease-in-out infinite;
 }
 

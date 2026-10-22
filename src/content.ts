@@ -78,6 +78,4 @@ export const TEXT = {
   scanHint: "Στόχευσε τον κρυμμένο κωδικό…",
   scanCancel: "Άκυρο",
   scanNoCamera: "Δεν βρέθηκε κάμερα. Σκάναρε με την κάμερα του κινητού σου.",
-  muteOn: "🔇",
-  muteOff: "🔊",
 } as const;
