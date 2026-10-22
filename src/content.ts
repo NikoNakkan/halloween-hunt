@@ -71,11 +71,8 @@ export const TEXT = {
   homeText: "Ψάξε τους κρυμμένους κωδικούς μέσα στο σπίτι και σκάναρέ τους με την κάμερα.",
   notStarted: "Το κυνήγι δεν έχει ξεκινήσει. Βρες τον πρώτο κωδικό.",
   progressLabel: "Στοιχεία που βρέθηκαν",
-  doneTitle: "Καλή δουλειά…",
-  doneText: "…αλλά έχεις ακόμα πολύ δρόμο.",
-  // Shown on every phone once all 5 are found: the password for the quiz.
-  codeIntro: "Ο όρος που χρησιμοποιούμε για κωδικό…",
-  codeLabel: "Ο κωδικός είναι:",
+  // Shown on every phone once all 5 are found (and nothing else): the quiz password.
+  codeLabel: "Ο κωδικός είναι",
   code: "ΕΓΓΟΝΗ",
   scanButton: "📷 Σκάναρε",
   scanHint: "Στόχευσε τον κρυμμένο κωδικό…",

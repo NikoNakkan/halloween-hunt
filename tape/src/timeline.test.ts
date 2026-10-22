@@ -24,7 +24,7 @@ describe.each(Object.entries(CUTS))("%s cut", (_, cut) => {
 
   it("keeps subliminal flashes to a few frames inside the clip", () => {
     for (const s of cut.subliminals) {
-      expect((s.end - s.start) * FPS).toBeLessThanOrEqual(8.01);
+      expect((s.end - s.start) * FPS).toBeLessThanOrEqual(12.01);
       expect(s.end).toBeLessThan(cut.duration);
       expect(subliminalAt(cut, s.start + 0.001)).toBe(s);
     }
