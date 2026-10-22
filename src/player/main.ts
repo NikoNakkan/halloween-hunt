@@ -2,12 +2,15 @@
 import "../styles.css";
 import { isMuted, setMuted, unlock } from "../audio/engine";
 import { startMusic } from "../audio/music";
-import { playBell, startAmbientThunder } from "../audio/sfx";
+import { startAmbientThunder } from "../audio/sfx";
+import { playWail } from "../audio/wail";
 import { unlockVoice } from "../audio/voice";
 import { START, TEXT } from "../content";
 import { lightning, runEffect } from "../effects";
+import { startSpooky } from "../spooky";
 import { isComplete, resolveScan, type Found } from "../hunt";
 import { createStore, type HuntStore } from "../sync";
+import { renderFinale, showFinale } from "./finale";
 import { renderProgress } from "./progress";
 import { codeFromQr } from "./scan-code";
 import { scanQr } from "./scanner";
@@ -42,9 +45,10 @@ function showCard(code: string | null, found: Found): void {
 function showProgress(found: Found, wasComplete: boolean): void {
   renderProgress($("#progress"), found);
   const done = isComplete(found);
-  $("#done").hidden = !done;
+  showFinale(done); // shared: whoever finds the last code, every phone switches
   if (done && !wasComplete) {
-    playBell();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    void playWail();
     lightning();
   }
 }
@@ -54,6 +58,7 @@ async function enter(): Promise<void> {
   await unlock();
   void startMusic();
   startAmbientThunder(lightning);
+  startSpooky();
   $("#gate").hidden = true;
   $("#hunt").hidden = false;
 
@@ -71,7 +76,7 @@ async function enter(): Promise<void> {
 
   const scanBtn = $<HTMLButtonElement>("#scan");
   scanBtn.textContent = TEXT.scanButton;
-  scanBtn.hidden = false;
+  scanBtn.hidden = isComplete(latest);
   scanBtn.addEventListener("click", () => void scanInApp(store));
 }
 
@@ -82,7 +87,7 @@ async function openCode(store: HuntStore, code: string | null): Promise<void> {
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (result.kind === "clue" && result.isNew) await store.markFound(result.clue.id);
   if (result.kind === "clue" && result.clue.id === START.id) {
-    window.setTimeout(() => playBell(), 1200);
+    window.setTimeout(() => void playWail(0.7), 1200);
   }
 }
 
@@ -100,8 +105,7 @@ async function scanInApp(store: HuntStore): Promise<void> {
 function init(): void {
   $("#gate-title").textContent = TEXT.enterTitle;
   $("#gate-hint").textContent = TEXT.enterHint;
-  $("#done-title").textContent = TEXT.doneTitle;
-  $("#done-text").textContent = TEXT.doneText;
+  renderFinale();
   const enterBtn = $<HTMLButtonElement>("#enter");
   enterBtn.textContent = TEXT.enterButton;
   enterBtn.addEventListener("click", () => void enter(), { once: true });

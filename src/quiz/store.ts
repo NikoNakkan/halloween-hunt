@@ -2,6 +2,7 @@
 //   /quiz/game                  = the current Game (written by the admin)
 //   /quiz/votes/<round>/<voter> = slot 0–3; rules allow each voter one write per round
 //   /quiz/event                 = quiz-only scare channel
+//   /quiz/unlocked              = true once anyone typed the password (opens every phone)
 import { onValue, ref, set, update } from "firebase/database";
 import { FIREBASE_CONFIG } from "../config";
 import { database } from "../sync/db";
@@ -17,6 +18,9 @@ export interface QuizStore extends EventChannel {
   onVotes(round: string, cb: (votes: Record<string, number>) => void): Unsubscribe;
   /** Cast this device's vote; false if it already voted this round. */
   vote(round: string, voter: string, slot: number): Promise<boolean>;
+  /** Shared password state: one correct password opens the quiz on every phone. */
+  onUnlocked(cb: (unlocked: boolean) => void): Unsubscribe;
+  setUnlocked(unlocked: boolean): Promise<void>;
 }
 
 export function createQuizStore(): QuizStore {
@@ -38,6 +42,12 @@ export function createQuizStore(): QuizStore {
       return onValue(ref(db, `quiz/votes/${round}`), (snap) =>
         cb((snap.val() as Record<string, number> | null) ?? {}),
       );
+    },
+    onUnlocked(cb) {
+      return onValue(ref(db, "quiz/unlocked"), (snap) => cb(snap.val() === true));
+    },
+    async setUnlocked(unlocked) {
+      await set(ref(db, "quiz/unlocked"), unlocked);
     },
     async vote(round, voter, slot) {
       try {

@@ -1,4 +1,4 @@
-// NEPHEW quiz admin: new game, run rounds, remove answers, reveal, scares.
+// GRANDDAUGHTER quiz admin: new game, run rounds, remove answers, reveal, scares.
 import "../../styles.css";
 import "../../admin/admin.css";
 import "./crypt.css";
@@ -140,6 +140,15 @@ function wire(): void {
     render();
   });
   mountSoundboard($("#soundboard"), { send: (e) => store.sendEvent(e) });
+
+  // Shared password state: open/close the quiz on every phone at once.
+  let unlocked = false;
+  store.onUnlocked((open) => {
+    unlocked = open;
+    $("#lock-status").textContent = open ? "🔓 Ανοιχτό σε όλους" : "🔒 Κλειδωμένο";
+    $("#lock-toggle").textContent = open ? "🔒 Κλείδωσε" : "🔓 Άνοιξε σε όλους";
+  });
+  $("#lock-toggle").addEventListener("click", () => void store.setUnlocked(!unlocked));
 
   $("#primary").addEventListener("click", () => void primaryAction());
   $("#end-game").addEventListener("click", () => {

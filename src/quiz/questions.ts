@@ -1,4 +1,4 @@
-// The NEPHEW quiz question bank. In each `a` list the FIRST answer is the correct one;
+// The GRANDDAUGHTER quiz question bank. In each `a` list the FIRST answer is the correct one;
 // the game shuffles the order for every round.
 
 export interface Question {

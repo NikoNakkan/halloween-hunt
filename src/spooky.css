@@ -1,0 +1,31 @@
+/* Silhouettes sit behind the page content (cards cover them; edges don't). */
+.spooky-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.hunt, .stage { z-index: 1; }
+.silhouette {
+  position: absolute;
+  bottom: 0;
+  aspect-ratio: 1 / 2.4;
+  opacity: 0;
+  filter: blur(4px);
+  fill: #000;
+}
+.silhouette svg { width: 100%; height: 100%; fill: #050202; }
+
+/* Spiders crawl over everything (but never block taps). */
+.spider { position: fixed; z-index: 45; pointer-events: none; }
+.spider.crawling { left: 0; top: 0; }
+/* A faint pale rim, as if candlelight caught it: visible on the dark page, still a shadow. */
+.spider svg { width: 100%; height: 100%; filter: drop-shadow(0 0 1.5px rgba(255, 225, 200, 0.45)) drop-shadow(0 3px 4px rgba(0, 0, 0, 0.8)); }
+.spider .legs-l { animation: scuttle 0.12s linear infinite alternate; transform-origin: 26px 30px; }
+.spider .legs-r { animation: scuttle 0.12s linear infinite alternate-reverse; transform-origin: 34px 30px; }
+@keyframes scuttle { to { transform: rotate(9deg); } }
+
+.spider.dangling { top: 0; display: grid; justify-items: center; }
+.spider.dangling .thread {
+  position: absolute;
+  bottom: 100%;
+  width: 1px;
+  height: 100vh;
+  background: linear-gradient(rgba(220, 220, 220, 0.05), rgba(220, 220, 220, 0.45));
+}
+.spider.dangling .legs-l, .spider.dangling .legs-r { animation-duration: 0.6s; }

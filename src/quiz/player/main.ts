@@ -1,19 +1,18 @@
-// NEPHEW quiz player: password, then live rounds driven by the admin through Firebase.
+// GRANDDAUGHTER quiz player: password, then live rounds driven by the admin through Firebase.
 import "../../styles.css";
 import "../quiz.css";
-import { isMuted, setMuted, unlock } from "../../audio/engine";
-import { startMusic } from "../../audio/music";
-import { playBell, playThunder, startAmbientThunder } from "../../audio/sfx";
-import { unlockVoice } from "../../audio/voice";
+import { isMuted, setMuted } from "../../audio/engine";
+import { playThunder } from "../../audio/sfx";
+import { playWail } from "../../audio/wail";
 import { TEXT } from "../../content";
 import { lightning, runEffect } from "../../effects";
 import { serverNow } from "../../sync/db";
 import type { Unsubscribe } from "../../sync/types";
-import { primeTape, playTape } from "../cinema";
+import { playTape } from "../cinema";
 import { isLastQuestion, roundKey, resultKey, type Game } from "../logic";
 import { createQuizStore, voterId, type QuizStore } from "../store";
 import { startTimer, stopTimer } from "../timer";
-import { hasPassed, isPassword, rememberPassed } from "./gate";
+import { setupEntry } from "./entry";
 import { applyRemovals, buildRound, reveal, showVoteState } from "./round";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel) as T;
@@ -28,6 +27,8 @@ let endedFor = "";
 /** Game id whose cursed tape has started / finished on this phone. */
 let finaleStarted = "";
 let finaleDone = "";
+/** Nothing of the game (rounds, scares, the finale tape) runs while the quiz is locked. */
+let open = false;
 
 function show(section: "lobby" | "round" | "end"): void {
   for (const id of ["lobby", "round", "end"]) $(`#${id}`).hidden = id !== section;
@@ -73,6 +74,7 @@ function renderScore(g: Game): void {
 
 function render(g: Game | null): void {
   game = g;
+  if (!open) return; // still behind the password: catch up when it opens
   if (!g || g.phase === "lobby") {
     stopTimer();
     show("lobby");
@@ -123,45 +125,18 @@ function showEnd(g: Game): void {
   window.setTimeout(() => {
     lightning();
     void playThunder();
-    window.setTimeout(() => playBell(0.7), 900);
+    window.setTimeout(() => void playWail(0.9), 900);
   }, 1000);
 }
 
-async function enter(): Promise<void> {
-  unlockVoice(); // must run synchronously inside the tap for iOS
-  primeTape(); // same: lets the finale video play with sound later
-  await unlock();
-  void startMusic();
-  startAmbientThunder(lightning);
-  $("#gate").hidden = true;
-  $("#stage").hidden = false;
-  store = createQuizStore();
-  store.onGame(render);
-  store.onEvent(runEffect);
-}
-
 function init(): void {
-  const gate = $<HTMLFormElement>("#gate");
-  const input = $<HTMLInputElement>("#password");
-  if (hasPassed()) {
-    // Already knows the secret: one tap to get back in (and unlock sound).
-    input.hidden = true;
-    $(".gate .title").textContent = "Καλώς ξαναήρθες…";
-  }
-  gate.addEventListener("submit", (e) => {
-    e.preventDefault();
-    if (hasPassed() || isPassword(input.value)) {
-      rememberPassed();
-      void enter();
-      return;
-    }
-    $("#gate-error").hidden = false;
-    gate.animate([{ transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "none" }], {
-      duration: 300,
-      iterations: 2,
-    });
-    void unlock().then(() => playThunder(0.7));
+  store = createQuizStore();
+  setupEntry(store, (isOpen) => {
+    open = isOpen;
+    if (open) render(game);
   });
+  store.onGame(render);
+  store.onEvent((event) => open && runEffect(event));
 
   const mute = $<HTMLButtonElement>("#mute");
   const label = () => (mute.textContent = isMuted() ? TEXT.muteOn : TEXT.muteOff);

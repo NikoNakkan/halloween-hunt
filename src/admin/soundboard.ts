@@ -11,7 +11,7 @@ const MARKUP = `
     <div class="board">
       <button class="fx-btn scream" data-kind="scream">😱<span>Κραυγή</span></button>
       <button class="fx-btn thunder" data-kind="thunder">⚡<span>Κεραυνός</span></button>
-      <button class="fx-btn bell" data-kind="bell">🔔<span>Καμπάνα</span></button>
+      <button class="fx-btn wail" data-kind="wail">👻<span>Ουρλιαχτό</span></button>
     </div>
     <form id="msg-form" class="row">
       <input id="msg-input" placeholder="Μήνυμα σε όλους…" maxlength="120" />

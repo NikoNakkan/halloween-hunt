@@ -1,4 +1,4 @@
-/* NEPHEW quiz. Shares tokens and effects with styles.css. */
+/* GRANDDAUGHTER quiz. Shares tokens and effects with styles.css. */
 
 .password {
   font: inherit;
@@ -160,4 +160,28 @@
   color: var(--ink);
   box-shadow: 0 0 24px var(--blood-glow);
 }
+
+/* Phones opened by someone else's password: one tap for sound. */
+.sound-on {
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 70;
+  transform: translateX(-50%);
+  font: inherit;
+  font-size: 1.15rem;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--blood);
+  background: rgba(20, 0, 0, 0.85);
+  color: var(--ink);
+  box-shadow: 0 0 20px var(--blood-glow);
+  animation: pulse-frame 1.6s ease-in-out infinite;
+}
+
+/* Grandma's hand reaching in for an answer. */
+.grandma-hand { position: fixed; left: 0; z-index: 46; pointer-events: none; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7)); }
+.grandma-hand svg { width: 100%; height: 100%; }
+.answer.grabbed { animation: tremble 0.08s linear infinite; }
+@keyframes tremble { 50% { transform: translate(1px, -1px); } }
 

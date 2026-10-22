@@ -21,13 +21,13 @@ Set `FIREBASE_CONFIG` to null in `src/config.ts` to sync only between tabs of on
 - Firebase config and admin PIN: `src/config.ts`
 - Sounds: `public/sounds/` (CC0, see `CREDITS.md`). To change one, replace the file and keep the name. Switch to `scream-alt.ogg` by renaming it to `scream.ogg`.
 
-## NEPHEW quiz
+## GRANDDAUGHTER quiz
 
-A live Halloween quiz at `/nephew/` (password **NEPHEW**). Everyone votes as one team, and
+A live Halloween quiz at `/granddaughter/` (password **GRANDDAUGHTER**, or **ΕΓΓΟΝΗ**, which the hunt reveals at the end; the old `/nephew/` link redirects). Everyone votes as one team, and
 the majority answer is the team's pick. Wrong picks trigger a jumpscare.
 
-- Players: https://nikonakkan.github.io/halloween-hunt/nephew/
-- Admin: https://nikonakkan.github.io/halloween-hunt/nephew/crypt.html (same PIN as the hunt)
+- Players: https://nikonakkan.github.io/halloween-hunt/granddaughter/
+- Admin: https://nikonakkan.github.io/halloween-hunt/granddaughter/crypt.html (same PIN as the hunt)
 - Questions: `src/quiz/questions.ts` (the first answer is the correct one; the game shuffles them)
 - Keep the admin page open during a game, because it triggers the reveal when time runs out.
 

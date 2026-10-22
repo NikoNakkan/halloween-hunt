@@ -1,6 +1,5 @@
 // Sound effects: real CC0 recordings from public/sounds (see CREDITS.md),
 // with synthesized fallbacks if a file is missing or the browser can't decode it.
-import { tollBell } from "./bell";
 import { audio, loadSample, noiseBuffer, playBuffer, type Clip } from "./engine";
 
 type Synth = () => void;
@@ -77,11 +76,6 @@ function screamSynth(): void {
 export const playThunder = (volume = 1) =>
   play("thunder", thunderSynth, [{ offset: 20.8, duration: 12, volume }]);
 export const playScream = () => play("scream", screamSynth, [{ volume: 1 }]);
-/** One distant church-bell toll (replaced grandma's laugh). */
-export function playBell(volume = 0.5): void {
-  const { ctx, out } = audio();
-  tollBell(ctx, out, ctx.currentTime + 0.02, volume);
-}
 
 let thunderTimer: number | undefined;
 

@@ -9,8 +9,8 @@ export default defineConfig({
       input: {
         main: resolve(import.meta.dirname, "index.html"),
         admin: resolve(import.meta.dirname, "grimoire.html"),
-        quiz: resolve(import.meta.dirname, "nephew/index.html"),
-        quizAdmin: resolve(import.meta.dirname, "nephew/crypt.html"),
+        quiz: resolve(import.meta.dirname, "granddaughter/index.html"),
+        quizAdmin: resolve(import.meta.dirname, "granddaughter/crypt.html"),
       },
     },
   },

@@ -47,7 +47,7 @@
 .fx-btn span { font-size: 1rem; }
 .fx-btn:active { transform: scale(0.96); }
 .fx-btn.scream { background: linear-gradient(#4d0a0f, #1c0d0e); }
-.fx-btn.bell { background: linear-gradient(#2a2a2a, #1c0d0e); }
+.fx-btn.wail { background: linear-gradient(#2a2a2a, #1c0d0e); }
 
 .voice-form { display: grid; gap: 8px; margin-top: 10px; }
 .admin select { font: inherit; color: var(--ink); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.4); }

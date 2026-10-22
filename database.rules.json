@@ -11,7 +11,7 @@
     "event": {
       ".read": true,
       ".write": true,
-      ".validate": "newData.hasChildren(['id', 'kind', 'at']) && newData.child('kind').val().matches(/^(scream|thunder|bell|message|speak)$/)",
+      ".validate": "newData.hasChildren(['id', 'kind', 'at']) && newData.child('kind').val().matches(/^(scream|thunder|wail|message|speak)$/)",
       "id": {
         ".validate": "newData.isString() && newData.val().length < 40"
       },
@@ -60,7 +60,7 @@
       "event": {
         ".read": true,
         ".write": true,
-        ".validate": "newData.hasChildren(['id', 'kind', 'at']) && newData.child('kind').val().matches(/^(scream|thunder|bell|message|speak)$/)",
+        ".validate": "newData.hasChildren(['id', 'kind', 'at']) && newData.child('kind').val().matches(/^(scream|thunder|wail|message|speak)$/)",
         "id": {
           ".validate": "newData.isString() && newData.val().length < 40"
         },
@@ -82,6 +82,10 @@
         "$other": {
           ".validate": false
         }
+      },
+      "unlocked": {
+        ".write": true,
+        ".validate": "newData.isBoolean()"
       }
     }
   }

@@ -129,7 +129,24 @@ body {
   animation: rise 1s ease-out;
 }
 .done h2 { margin: 0 0 4px; font-size: 1.9rem; font-style: italic; }
-.done p { margin: 0; font-size: 1.3rem; color: #ffb3b3; }
+.done > p { margin: 0; font-size: 1.3rem; color: #ffb3b3; }
+.done-clues { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 10px; text-align: left; counter-reset: clue; }
+.done-clues li { padding: 12px 14px; border-radius: 10px; background: rgba(0, 0, 0, 0.45); border: 1px solid var(--line); counter-increment: clue; }
+.done-clues h3 { margin: 0 0 4px; font-size: 1.1rem; font-style: italic; color: #f3e9dc; }
+.done-clues h3::before { content: counter(clue) ". "; color: var(--blood); }
+.done-clues p { margin: 0; font-size: 1.02rem; line-height: 1.5; color: var(--ink); white-space: pre-line; }
+.code-reveal { margin-top: 22px; }
+.code-reveal p { margin: 4px 0; font-size: 1.15rem; font-style: italic; color: #ffb3b3; }
+.code-reveal .code-word {
+  margin-top: 10px;
+  font-size: clamp(2.6rem, 14vw, 4rem);
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.18em;
+  color: #ff2a2a;
+  text-shadow: 0 0 26px var(--blood), 0 0 54px var(--blood);
+  animation: pulse 2.4s ease-in-out infinite;
+}
 
 /* Progress */
 .progress { text-align: center; }
@@ -167,7 +184,7 @@ body {
 @keyframes lunge { from { transform: scale(0.2); } to { transform: scale(1); } }
 @keyframes shake { 50% { transform: translate(6px, -5px) rotate(1.5deg); } }
 
-.fx-bell { background: radial-gradient(circle, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.95)); color: #d9d4c7; animation: fade 4s ease-in-out forwards; }
+.fx-wail { background: radial-gradient(circle, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.95)); color: #d9d4c7; animation: fade 5s ease-in-out forwards; }
 .fx-message { background: rgba(0, 0, 0, 0.88); animation: fade 6s ease-in-out forwards; }
 .fx-message .fx-big { font-size: clamp(1.8rem, 9vw, 3.4rem); color: #ffd7d7; text-shadow: 0 0 24px var(--blood); }
 .fx-speak { background: radial-gradient(circle, rgba(40, 0, 0, 0.75), rgba(0, 0, 0, 0.95)); animation: fade-in 1s ease-out; transition: opacity 1.2s; }

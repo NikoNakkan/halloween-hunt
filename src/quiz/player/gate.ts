@@ -1,32 +1,14 @@
-// The NEPHEW password screen. Also the tap that unlocks sound on phones.
-const KEY = "quiz.passed";
-const PASSWORD = "NEPHEW";
+// The GRANDDAUGHTER password check. Whether the quiz is open is shared state (see entry.ts).
 
-/**
- * Accept NEPHEW however it's typed, including on a Greek keyboard, where the same
- * keys produce "ΝΕΠΗΕς" (W is final sigma).
- */
+/** What players may type: the English word (also the common one-D spelling) or the Greek one the hunt reveals. */
+const PASSWORDS = ["GRANDDAUGHTER", "GRANDAUGHTER", "ΕΓΓΟΝΗ"];
+
+/** Case-, space- and accent-insensitive: "εγγονή", " Granddaughter " and "ΕΓΓΟΝΉ" all count. */
 export function isPassword(input: string): boolean {
-  const greekKeys: Record<string, string> = { Ν: "N", Ε: "E", Π: "P", Η: "H", Σ: "W", Ω: "W" };
   const typed = input
-    .trim()
-    .toUpperCase()
-    .replace(/[ΝΕΠΗΣΩ]/g, (ch) => greekKeys[ch] ?? ch);
-  return typed === PASSWORD;
-}
-
-export function hasPassed(): boolean {
-  try {
-    return localStorage.getItem(KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function rememberPassed(): void {
-  try {
-    localStorage.setItem(KEY, "1");
-  } catch {
-    // Storage blocked: they'll type it again next time.
-  }
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/\s+/g, "")
+    .toUpperCase();
+  return PASSWORDS.includes(typed);
 }

@@ -1,5 +1,6 @@
 // Full-screen scares triggered by the admin (and ambient lightning).
-import { playBell, playScream, playThunder } from "./audio/sfx";
+import { playScream, playThunder } from "./audio/sfx";
+import { playWail } from "./audio/wail";
 import { speak } from "./audio/voice";
 import { FACE_SVG } from "./face";
 import type { HuntEvent } from "./sync";
@@ -45,11 +46,11 @@ export function runEffect(event: Pick<HuntEvent, "kind" | "name" | "text" | "aud
       lightning();
       if (name) overlay("fx-whisper", `<p>${name}…</p>`, 3500);
       break;
-    case "bell":
-      // A toll and the room goes dark for a moment.
-      playBell(0.7);
+    case "wail":
+      // A hollow wail and the room goes dark for a moment.
+      void playWail(0.9);
       vibrate([500]);
-      overlay("fx-bell", name ? `<p>${name}…</p>` : "", 4000);
+      overlay("fx-wail", name ? `<p>${name}…</p>` : "", 5000);
       break;
     case "message":
       void playThunder();
