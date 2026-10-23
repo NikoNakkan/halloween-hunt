@@ -1,12 +1,13 @@
 // GRANDDAUGHTER quiz player: password, then live rounds driven by the admin through Firebase.
 import "../../styles.css";
 import "../quiz.css";
-import { playThunder } from "../../audio/sfx";
+import { duckMusic } from "../../audio/music";
+import { playThunder, startAmbientThunder } from "../../audio/sfx";
 import { playWail } from "../../audio/wail";
 import { lightning, runEffect } from "../../effects";
 import { serverNow } from "../../sync/db";
 import type { Unsubscribe } from "../../sync/types";
-import { playTape } from "../cinema";
+import { playTape, stopTape } from "../cinema";
 import { roundKey, type Game } from "../logic";
 import { createQuizStore, voterId, type QuizStore } from "../store";
 import { startTimer, stopTimer } from "../timer";
@@ -61,9 +62,21 @@ async function vote(slot: number): Promise<void> {
   await store.vote(roundKey(game), me, slot);
 }
 
+/** Game id whose finale (tape or ending) is on screen right now, if any. */
+let finaleOn = "";
+
+/** A new game while the tape or the ending is up: cut it and bring the night back. */
+function leaveFinale(): void {
+  finaleOn = "";
+  stopTape();
+  duckMusic(false);
+  startAmbientThunder(lightning);
+}
+
 function render(g: Game | null): void {
   game = g;
   if (!open) return; // locked, or sound not on yet: catch up once ready
+  if (finaleOn && g?.id !== finaleOn) leaveFinale();
   if (!g || g.phase === "lobby") {
     stopTimer();
     show("lobby");
@@ -94,10 +107,12 @@ function render(g: Game | null): void {
 async function finale(g: Game): Promise<void> {
   if (finaleStarted === g.id) return;
   finaleStarted = g.id;
+  finaleOn = g.id;
   stopTimer();
   await playTape();
+  if (game?.id !== g.id) return; // cut short by a new game: render() already moved on
   finaleDone = g.id;
-  showEnd(game?.id === g.id ? game : g);
+  showEnd(game);
 }
 
 function showEnd(g: Game): void {
@@ -107,9 +122,10 @@ function showEnd(g: Game): void {
   endedFor = g.id;
   // In time with "ΚΟΙΤΑ ΠΙΣΩ ΣΟΥ" flickering in (CSS delay 1 s).
   window.setTimeout(() => {
+    if (finaleOn !== g.id) return; // a new game started in the meantime
     lightning();
     void playThunder();
-    window.setTimeout(() => void playWail(0.9), 900);
+    window.setTimeout(() => finaleOn === g.id && void playWail(0.9), 900);
   }, 1000);
 }
 

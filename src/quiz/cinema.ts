@@ -49,7 +49,14 @@ export function primeTape(): void {
     .finally(() => (priming = false));
 }
 
-/** Play the tape full-screen; resolves when it ends (or can't play). */
+let stopCurrent: (() => void) | null = null;
+
+/** Cut the tape off immediately (e.g. the admin started a new game). */
+export function stopTape(): void {
+  stopCurrent?.();
+}
+
+/** Play the tape full-screen; resolves when it ends, is stopped, or can't play. */
 export function playTape(): Promise<void> {
   priming = false; // from now on nobody may pause the tape but us
   const v = tape();
@@ -66,6 +73,7 @@ export function playTape(): Promise<void> {
     const finish = () => {
       if (done) return;
       done = true;
+      stopCurrent = null;
       window.clearInterval(watchdog);
       v.pause();
       screen.remove();
@@ -84,6 +92,7 @@ export function playTape(): Promise<void> {
       };
       screen.append(tap);
     };
+    stopCurrent = finish;
     v.onended = finish;
     v.onerror = finish;
     // Never leave a phone stuck: if the picture hasn't moved for 4 s, offer the tap;
