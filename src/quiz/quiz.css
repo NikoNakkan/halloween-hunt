@@ -22,7 +22,6 @@
 
 .round { display: grid; gap: 14px; animation: rise 0.6s ease-out; }
 .round-head { display: grid; gap: 8px; }
-.q-meta { margin: 0; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.9rem; }
 .q-text { font-size: clamp(1.5rem, 6.5vw, 2.1rem); line-height: 1.25; margin: 0; }
 
 .timer { position: relative; height: 30px; border-radius: 15px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
@@ -141,9 +140,6 @@
 @keyframes warn-in { 0% { opacity: 1; } 10% { opacity: 0; } 25% { opacity: 1; } 35% { opacity: 0.2; } 50%, 100% { opacity: 1; } }
 @keyframes throb { 50% { transform: scale(1.06); text-shadow: 0 0 50px var(--blood), 0 0 90px var(--blood), 0 3px 0 #000; } }
 
-.score-strip { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; padding: 0; }
-.score-strip li { width: 30px; text-align: center; font-size: 1.2rem; color: var(--muted); }
-.score-strip li.dead { filter: grayscale(0.4); }
 
 /* The cursed tape, full-screen over everything. */
 .tape-screen { position: fixed; inset: 0; z-index: 80; background: #000; display: grid; place-items: center; }

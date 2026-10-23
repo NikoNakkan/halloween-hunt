@@ -53,6 +53,15 @@ export function drawGame(count: number, seconds: number, rand = Math.random): Ga
   };
 }
 
+/** One more random question this game hasn't used (answers shuffled), or null if the bank is spent. */
+export function extraQuestion(game: Game, rand = Math.random): GameQuestion | null {
+  const used = new Set(game.questions.map((q) => q.id));
+  const left = QUESTIONS.filter((q) => !used.has(q.id));
+  if (!left.length) return null;
+  const q = left[Math.floor(rand() * left.length)];
+  return { id: q.id, order: shuffle([0, 1, 2, 3], rand) };
+}
+
 export function questionOf(gq: GameQuestion): Question {
   const q = QUESTIONS.find((x) => x.id === gq.id);
   if (!q) throw new Error(`unknown question ${gq.id}`);

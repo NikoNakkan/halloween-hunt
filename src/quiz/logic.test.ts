@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { answersOf, correctSlot, drawGame, resultFor, score, tally, teamPick, type Game } from "./logic";
+import { answersOf, correctSlot, drawGame, extraQuestion, resultFor, score, tally, teamPick, type Game } from "./logic";
 import { QUESTIONS } from "./questions";
 import { rng } from "../random";
 
@@ -28,6 +28,20 @@ describe("drawGame", () => {
     const gq = game().questions[0];
     const bank = QUESTIONS.find((q) => q.id === gq.id);
     expect(answersOf(gq)[correctSlot(gq)]).toBe(bank?.a[0]);
+  });
+});
+
+describe("extraQuestion", () => {
+  it("adds a question the game hasn't used yet", () => {
+    const g = drawGame(5, 60, rng(3));
+    const extra = extraQuestion(g, rng(9));
+    expect(extra).not.toBeNull();
+    expect(g.questions.map((q) => q.id)).not.toContain(extra?.id);
+    expect([...(extra?.order ?? [])].sort()).toEqual([0, 1, 2, 3]);
+  });
+
+  it("returns null once every question has been used", () => {
+    expect(extraQuestion(drawGame(999, 60))).toBeNull();
   });
 });
 

@@ -11,6 +11,7 @@ import {
   correctSlot,
   currentResult,
   drawGame,
+  extraQuestion,
   isLastQuestion,
   isRemoved,
   questionOf,
@@ -61,7 +62,7 @@ function primaryLabel(g: Game | null): string {
   if (!g || g.phase === "end") return "—";
   if (g.phase === "lobby") return "▶ Πρώτη ερώτηση";
   if (g.phase === "question") return "👁 Αποκάλυψη τώρα";
-  return isLastQuestion(g) ? "🏁 Τελικό σκορ" : "⏭ Επόμενη ερώτηση";
+  return isLastQuestion(g) ? "🏁 Τέλος (βίντεο)" : "⏭ Επόμενη ερώτηση";
 }
 
 function watchVotes(g: Game): void {
@@ -151,6 +152,12 @@ function wire(): void {
   $("#lock-toggle").addEventListener("click", () => void store.setUnlocked(!unlocked));
 
   $("#primary").addEventListener("click", () => void primaryAction());
+  $("#add-question").addEventListener("click", () => {
+    if (!game || game.phase === "end") return;
+    const extra = extraQuestion(game);
+    if (!extra) return alert("Δεν έμειναν άλλες ερωτήσεις στη λίστα.");
+    void store.patchGame({ questions: [...game.questions, extra] });
+  });
   $("#end-game").addEventListener("click", () => {
     if (game && confirm("Τέλος παιχνιδιού τώρα;")) void store.patchGame({ phase: "end" });
   });

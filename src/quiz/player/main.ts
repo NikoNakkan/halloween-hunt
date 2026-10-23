@@ -7,7 +7,7 @@ import { lightning, runEffect } from "../../effects";
 import { serverNow } from "../../sync/db";
 import type { Unsubscribe } from "../../sync/types";
 import { playTape } from "../cinema";
-import { isLastQuestion, roundKey, resultKey, type Game } from "../logic";
+import { roundKey, type Game } from "../logic";
 import { createQuizStore, voterId, type QuizStore } from "../store";
 import { startTimer, stopTimer } from "../timer";
 import { setupEntry } from "./entry";
@@ -61,30 +61,19 @@ async function vote(slot: number): Promise<void> {
   await store.vote(roundKey(game), me, slot);
 }
 
-function renderScore(g: Game): void {
-  $("#score").innerHTML = g.questions
-    .map((_, i) => {
-      const r = g.results?.[resultKey(i)];
-      const cls = r ? (r.correct ? "lit" : "dead") : "";
-      return `<li class="${cls}" title="${i + 1}">${r ? (r.correct ? "🕯️" : "💀") : "•"}</li>`;
-    })
-    .join("");
-}
-
 function render(g: Game | null): void {
   game = g;
   if (!open) return; // locked, or sound not on yet: catch up once ready
   if (!g || g.phase === "lobby") {
     stopTimer();
     show("lobby");
-    $("#score").innerHTML = "";
     return;
   }
   if (finaleDone === g.id) return showEnd(g);
-  renderScore(g);
   if (g.phase === "end") {
+    // Only the Crypt decides when it's over (players never see how many are left).
     stopTimer();
-    void finale(g); // admin ended before the tape ran: play it now
+    void finale(g);
     return;
   }
   show("round");
@@ -96,10 +85,7 @@ function render(g: Game | null): void {
   } else {
     stopTimer();
     // Joining (or reloading) during a reveal shouldn't replay the scare.
-    void reveal(g, fresh).then(() => {
-      // After the last answer: a breath, then the cursed tape.
-      if (isLastQuestion(g) && !fresh) window.setTimeout(() => void finale(g), 2500);
-    });
+    void reveal(g, fresh);
   }
   refreshVotes();
 }
@@ -117,7 +103,6 @@ async function finale(g: Game): Promise<void> {
 function showEnd(g: Game): void {
   stopTimer();
   show("end");
-  $("#score").innerHTML = ""; // no team score at the end: only the warning
   if (endedFor === g.id) return;
   endedFor = g.id;
   // In time with "ΚΟΙΤΑ ΠΙΣΩ ΣΟΥ" flickering in (CSS delay 1 s).

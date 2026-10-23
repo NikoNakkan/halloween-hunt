@@ -20,7 +20,6 @@ export function buildRound(game: Game, onVote: (slot: number) => void): boolean 
   if (builtFor === key) return false;
   builtFor = key;
   const gq = game.questions[game.index];
-  $("#q-meta").textContent = `Ερώτηση ${game.index + 1} / ${game.questions.length}`;
   $("#q-text").textContent = questionOf(gq).q;
   $("#banner").hidden = true;
   $("#round").classList.remove("revealed");
