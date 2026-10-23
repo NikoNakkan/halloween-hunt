@@ -75,7 +75,7 @@ function screamSynth(): void {
 // thunder.ogg is 44 s of rain; the crack hits at ~21 s, so play just that part.
 export const playThunder = (volume = 1) =>
   play("thunder", thunderSynth, [{ offset: 20.8, duration: 12, volume }]);
-export const playScream = () => play("scream", screamSynth, [{ volume: 1 }]);
+export const playScream = () => play("scream", screamSynth, [{ volume: 0.6 }]);
 
 let thunderTimer: number | undefined;
 

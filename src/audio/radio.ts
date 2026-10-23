@@ -34,7 +34,7 @@ function crushCurve(drive: number): Float32Array<ArrayBuffer> {
 
 let hall: AudioBuffer | null = null;
 
-export async function playRadio(pick?: string, volume = 0.9): Promise<void> {
+export async function playRadio(pick?: string, volume = 0.55): Promise<void> {
   const { ctx, out } = audio();
   const { clip, from } = parseRadioPick(pick);
   const record = await loadSample(clip);
