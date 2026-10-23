@@ -155,6 +155,8 @@ body {
 @keyframes lunge { from { transform: scale(0.2); } to { transform: scale(1); } }
 @keyframes shake { 50% { transform: translate(6px, -5px) rotate(1.5deg); } }
 
+.fx-radio { background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 4px); mix-blend-mode: screen; animation: radio-flicker 7.5s steps(30) forwards; }
+@keyframes radio-flicker { 0%, 100% { opacity: 0; } 8% { opacity: 1; } 12% { opacity: 0.3; } 20%, 85% { opacity: 0.6; } }
 .fx-wail { background: radial-gradient(circle, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.95)); color: #d9d4c7; animation: fade 5s ease-in-out forwards; }
 .fx-message { background: rgba(0, 0, 0, 0.88); animation: fade 6s ease-in-out forwards; }
 .fx-message .fx-big { font-size: clamp(1.8rem, 9vw, 3.4rem); color: #ffd7d7; text-shadow: 0 0 24px var(--blood); }

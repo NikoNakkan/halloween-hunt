@@ -36,7 +36,7 @@ function appRoot(): string {
 }
 
 async function fetchSample(name: string): Promise<AudioBuffer | null> {
-  for (const ext of ["ogg", "mp3"]) {
+  for (const ext of ["ogg", "mp3", "m4a"]) {
     try {
       const res = await fetch(`${appRoot()}sounds/${name}.${ext}`);
       const type = res.headers.get("content-type") ?? "";
@@ -50,7 +50,7 @@ async function fetchSample(name: string): Promise<AudioBuffer | null> {
   return null;
 }
 
-/** Real recording at public/sounds/<name>.ogg|.mp3; null if absent or undecodable. */
+/** Real recording at public/sounds/<name>.ogg|.mp3|.m4a; null if absent or undecodable. */
 export function loadSample(name: string): Promise<AudioBuffer | null> {
   let pending = samples.get(name);
   if (!pending) {

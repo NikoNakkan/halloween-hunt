@@ -4,7 +4,7 @@
 import { audio, loadSample, noiseBuffer } from "./engine";
 
 /** Long dark reverb tail: decaying noise, smoothed so the top end dies first. */
-function darkHall(ctx: BaseAudioContext, seconds: number): AudioBuffer {
+export function darkHall(ctx: BaseAudioContext, seconds: number): AudioBuffer {
   const length = Math.floor(ctx.sampleRate * seconds);
   const buf = ctx.createBuffer(2, length, ctx.sampleRate);
   for (let ch = 0; ch < 2; ch++) {

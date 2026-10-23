@@ -3,6 +3,7 @@ import { playWail } from "../../audio/wail";
 import { runEffect } from "../../effects";
 import { clawAway, goneQuietly, wait } from "../anim";
 import { handAway } from "../hand";
+import { knifeAway } from "../knife";
 import { answersOf, correctSlot, currentResult, isRemoved, questionOf, roundKey, SLOTS, type Game } from "../logic";
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel) as T;
@@ -40,9 +41,13 @@ export function buildRound(game: Game, onVote: (slot: number) => void): boolean 
   return true;
 }
 
-/** Answers leave either to the claws or to grandma's hand. */
+/** Answers take turns leaving: claws, grandma's hand, the knife, then round again. */
+const EXITS = [clawAway, handAway, knifeAway];
+let nextExit = 0;
 function takeAway(el: HTMLElement): Promise<void> {
-  return Math.random() < 0.5 ? handAway(el) : clawAway(el);
+  const exit = EXITS[nextExit % EXITS.length];
+  nextExit++;
+  return exit(el);
 }
 
 /** Animate answers the admin removed since the last update. */

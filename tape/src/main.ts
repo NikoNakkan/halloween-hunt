@@ -1,5 +1,6 @@
 // Tape tool entry: exposes helpers on window so they can be driven from the console.
 import { encode } from "./encode";
+import { exportRadioExcerpts } from "./excerpt";
 import { contactSheet, loadFootage, save } from "./footage";
 import { drawFrame } from "./picture";
 import { blackShirt } from "./recolor";
@@ -19,6 +20,8 @@ function canvasBlob(type: string): Promise<Blob> {
 }
 
 const tools = {
+  /** Short web excerpts of the radio records for the app (tape/out/radio-N.m4a). */
+  radioExcerpts: exportRadioExcerpts,
   /** Save the black-shirt version of the masked-man photo for review. */
   async shirt() {
     const canvas = await blackShirt();

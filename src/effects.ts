@@ -1,5 +1,6 @@
 // Full-screen scares triggered by the admin (and ambient lightning).
 import { playScream, playThunder } from "./audio/sfx";
+import { playRadio } from "./audio/radio";
 import { playWail } from "./audio/wail";
 import { speak } from "./audio/voice";
 import { FACE_SVG } from "./face";
@@ -32,7 +33,7 @@ export function lightning(): void {
   overlay("fx-lightning", "", 1200);
 }
 
-export function runEffect(event: Pick<HuntEvent, "kind" | "name" | "text" | "audio">): void {
+export function runEffect(event: Pick<HuntEvent, "kind" | "name" | "text" | "audio" | "sound">): void {
   const name = event.name ? escapeHtml(greekCaps(event.name)) : "";
   switch (event.kind) {
     case "scream":
@@ -51,6 +52,11 @@ export function runEffect(event: Pick<HuntEvent, "kind" | "name" | "text" | "aud
       void playWail(0.9);
       vibrate([500]);
       overlay("fx-wail", name ? `<p>${name}…</p>` : "", 5000);
+      break;
+    case "radio":
+      // A ghost radio somewhere in the house: static flickers across the screen.
+      void playRadio(event.sound);
+      overlay("fx-radio", name ? `<p>${name}…</p>` : "", 7500);
       break;
     case "message":
       void playThunder();

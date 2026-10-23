@@ -33,7 +33,8 @@
 .chip .del { padding: 6px 10px; color: var(--muted); border-left: 1px solid var(--line); }
 .chip.on { border-color: var(--blood); background: rgba(179, 18, 27, 0.35); box-shadow: 0 0 12px var(--blood-glow); }
 
-.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.fx-btn.radio { background: linear-gradient(#2b2410, #1c0d0e); }
 .fx-btn {
   display: grid;
   justify-items: center;

@@ -3,6 +3,7 @@ import { unlock } from "../audio/engine";
 import { runEffect } from "../effects";
 import type { EffectKind } from "../sync";
 import type { EventChannel } from "../sync/events";
+import { randomRadioPick } from "../audio/radio";
 import { clipFor, wireVoicePanel } from "./voice-panel";
 
 const MARKUP = `
@@ -12,6 +13,7 @@ const MARKUP = `
       <button class="fx-btn scream" data-kind="scream">😱<span>Κραυγή</span></button>
       <button class="fx-btn thunder" data-kind="thunder">⚡<span>Κεραυνός</span></button>
       <button class="fx-btn wail" data-kind="wail">👻<span>Ουρλιαχτό</span></button>
+      <button class="fx-btn radio" data-kind="radio">📻<span>Ραδιόφωνο</span></button>
     </div>
     <form id="msg-form" class="row">
       <input id="msg-input" placeholder="Μήνυμα σε όλους…" maxlength="120" />
@@ -50,7 +52,9 @@ export function mountSoundboard(root: HTMLElement, { send, name = () => null }: 
   const fire = async (kind: EffectKind, text?: string) => {
     const who = name();
     const audio = kind === "speak" && text ? await clipFor(text) : undefined;
-    const event = { kind, name: who ?? undefined, text, audio };
+    // Radio: pick the record and start here, so every phone plays the very same snippet.
+    const sound = kind === "radio" ? randomRadioPick() : undefined;
+    const event = { kind, name: who ?? undefined, text, audio, sound };
     if ($<HTMLInputElement>("#preview").checked) {
       await unlock();
       runEffect(event);
